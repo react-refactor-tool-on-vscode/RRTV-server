@@ -1,0 +1,26 @@
+{
+  "name": "rrtv-server",
+  "version": "0.0.1",
+  "description": "Language server for RRTV.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/react-refactor-tool-on-vscode/RRTV-server.git"
+  },
+  "scripts": {},
+  "engines": {
+    "node": "*"
+  },
+  "dependencies": {
+		"vscode-languageserver": "^8.1.0",
+		"vscode-languageserver-textdocument": "^1.0.8"
+  },
+  "keywords": [
+    "lsp",
+    "react"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/react-refactor-tool-on-vscode/RRTV-server/issues"
+  },
+  "homepage": "https://github.com/react-refactor-tool-on-vscode/RRTV-server#readme"
+}
