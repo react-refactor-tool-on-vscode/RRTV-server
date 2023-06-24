@@ -13,6 +13,13 @@ interface Handler<T, U> {
      */
     setNext(handler: Handler<T, U>): Handler<T, U>;
 
+    /**
+     * Handle output and request.
+     * 
+     * @param prevOutput The output of the previous handler.
+     * @param request The request passed across the handler chain.
+     * @returns The output.
+     */
     handle(prevOutput: T, request: U): T;
 }
 
@@ -45,6 +52,14 @@ abstract class ContinuousOutputHandler<T, U> extends BaseHandler<T, U> {
         else return output;
     }
 
+    /**
+     * Handler method used to generate the output till the stage.
+     * 
+     * @param prevOutput The output of the previous handler.
+     * @param request The request passed across the handler chain.
+     * 
+     * @description Do not manually use nextHandler.
+     */
     protected abstract concreteHandle(prevOutput: T, request: U): T;
 }
 
