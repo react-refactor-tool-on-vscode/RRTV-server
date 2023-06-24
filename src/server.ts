@@ -1,4 +1,7 @@
 import {
+    CodeAction,
+    CodeActionParams,
+    Command,
     createConnection,
     InitializeParams,
     InitializeResult,
@@ -8,6 +11,8 @@ import {
 } from "vscode-languageserver/node";
 
 import { TextDocument } from "vscode-languageserver-textdocument";
+
+import createHandler from "./interface/CreateHandler";
 
 let connection = createConnection(ProposedFeatures.all);
 
@@ -31,6 +36,8 @@ connection.onInitialize((params: InitializeParams) => {
 
     return result;
 });
+
+// Usage: connection.onCodeAction(createHandler<(CodeAction | Command)[], CodeActionParams>([], []));
 
 // Start listening.
 documents.listen(connection);

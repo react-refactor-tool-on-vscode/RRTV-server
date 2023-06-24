@@ -82,4 +82,4 @@ abstract class ContinuousVoidHandler<U> extends BaseHandler<void, U> {
     protected abstract concreteHandle(request: U): void;
 }
 
-export { BaseHandler, ContinuousOutputHandler, ContinuousVoidHandler };
+export { Handler, BaseHandler, ContinuousOutputHandler, ContinuousVoidHandler };
