@@ -38,10 +38,11 @@ abstract class BaseHandler<T, U> implements Handler<T, U> {
  */
 abstract class ContinuousOutputHandler<T, U> extends BaseHandler<T, U> {
     handle(prevOutput: T, request: U): T {
+        const output: T = this.concreteHandle(prevOutput, request);
         if (this.nextHandler) {
-            return this.nextHandler.handle(this.concreteHandle(prevOutput, request), request);
+            return this.nextHandler.handle(output, request);
         }
-        else return this.concreteHandle(prevOutput, request);
+        else return output;
     }
 
     protected abstract concreteHandle(prevOutput: T, request: U): T;
