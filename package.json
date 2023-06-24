@@ -6,13 +6,15 @@
     "type": "git",
     "url": "git+https://github.com/react-refactor-tool-on-vscode/RRTV-server.git"
   },
-  "scripts": {},
+  "scripts": {
+    "test": "jest"
+  },
   "engines": {
     "node": "*"
   },
   "dependencies": {
-		"vscode-languageserver": "^8.1.0",
-		"vscode-languageserver-textdocument": "^1.0.8"
+    "vscode-languageserver": "^8.1.0",
+    "vscode-languageserver-textdocument": "^1.0.8"
   },
   "keywords": [
     "lsp",
@@ -22,5 +24,11 @@
   "bugs": {
     "url": "https://github.com/react-refactor-tool-on-vscode/RRTV-server/issues"
   },
-  "homepage": "https://github.com/react-refactor-tool-on-vscode/RRTV-server#readme"
+  "homepage": "https://github.com/react-refactor-tool-on-vscode/RRTV-server#readme",
+  "devDependencies": {
+    "@types/jest": "^29.5.2",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.1.3"
+  }
 }
