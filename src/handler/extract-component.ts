@@ -4,7 +4,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 
 import { BaseHandler } from "../interface/Handler";
 
-const { textToAst, dataGenerator, modifier } = require('./utils-extract-component')
+import { textToAst, dataGenerator, modifier } from './utils-extract-component';
 
 export class ExtractComponentHandler extends BaseHandler<node.CodeAction[], node.CodeActionParams> {
     handle(prevOutput: node.CodeAction[], request: node.CodeActionParams): node.CodeAction[] {
