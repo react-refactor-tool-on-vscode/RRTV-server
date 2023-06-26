@@ -16,6 +16,7 @@ import {
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { IsRangeInLoc } from "../helper/RangeLoc";
 
+import { connection, documents } from "../server";
 class PropFlattenCodeActionHandler extends ContinuousOutputHandler<
     (CodeAction | Command)[],
     CodeActionParams

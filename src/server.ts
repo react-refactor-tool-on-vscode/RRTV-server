@@ -16,9 +16,9 @@ import createHandler from "./interface/CreateHandler";
 
 import { PropFlattenCodeActionHandler } from "./handler/PropFlatten";
 
-let connection = createConnection(ProposedFeatures.all);
+export const connection = createConnection(ProposedFeatures.all);
 
-let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+export const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
 connection.onInitialize((params: InitializeParams) => {
     const result: InitializeResult = {
