@@ -14,6 +14,8 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 
 import createHandler from "./interface/CreateHandler";
 
+import {ExtractComponentHandler} from './handler/extract-component'
+
 let connection = createConnection(ProposedFeatures.all);
 
 let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
@@ -38,7 +40,9 @@ connection.onInitialize((params: InitializeParams) => {
 });
 
 // Usage: connection.onCodeAction(createHandler<(CodeAction | Command)[], CodeActionParams>([], []));
-
+connection.onCodeAction(createHandler<(CodeAction | Command)[], CodeActionParams>([
+    new ExtractComponentHandler
+], []))
 // Start listening.
 documents.listen(connection);
 connection.listen();
