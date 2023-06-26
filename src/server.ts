@@ -14,6 +14,8 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 
 import createHandler from "./interface/CreateHandler";
 
+import { PropFlattenCodeActionHandler } from "./handler/PropFlatten";
+
 let connection = createConnection(ProposedFeatures.all);
 
 let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
@@ -29,7 +31,7 @@ connection.onInitialize((params: InitializeParams) => {
             codeActionProvider: true,
             executeCommandProvider: {
                 // TODO: commands be clarified and filled.
-                commands: [],
+                commands: ["rrtv.propFlatten"],
             },
         },
     };
@@ -37,7 +39,12 @@ connection.onInitialize((params: InitializeParams) => {
     return result;
 });
 
-// Usage: connection.onCodeAction(createHandler<(CodeAction | Command)[], CodeActionParams>([], []));
+connection.onCodeAction(
+    createHandler<(Command | CodeAction)[], CodeActionParams>(
+        [new PropFlattenCodeActionHandler()],
+        []
+    )
+);
 
 // Start listening.
 documents.listen(connection);

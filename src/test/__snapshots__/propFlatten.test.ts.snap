@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`can get first param 1`] = `true`;
+
+exports[`find all identifier 1`] = `
+[
+  "TodoItem",
+  "item",
+  "source",
+  "source",
+  "text",
+  "text",
+  "source",
+  "text",
+]
+`;
+
+exports[`find all jsx identifier 1`] = `
+[
+  "img",
+  "src",
+  "span",
+  "span",
+]
+`;
+
+exports[`get params type 1`] = `"object"`;
