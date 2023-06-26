@@ -24,4 +24,15 @@ exports[`find all jsx identifier 1`] = `
 ]
 `;
 
+exports[`functionTypeParam test 1`] = `"id: string"`;
+
 exports[`get params type 1`] = `"object"`;
+
+exports[`path between parent and array(container) 1`] = `true`;
+
+exports[`traverse function body 1`] = `
+[
+  "source",
+  "text",
+]
+`;
