@@ -15,6 +15,7 @@
   "dependencies": {
     "@babel/parser": "^7.22.5",
     "@babel/traverse": "^7.22.5",
+    "@types/jscodeshift": "^0.11.6",
     "vscode-languageserver": "^8.1.0",
     "vscode-languageserver-textdocument": "^1.0.8"
   },
