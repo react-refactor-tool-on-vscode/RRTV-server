@@ -10,7 +10,7 @@
 	},
 	"include": [
 		"src"
-	],
+, "out/handler/utils-extract-component.js"	],
 	"exclude": [
 		"node_modules",
 		".vscode-test"

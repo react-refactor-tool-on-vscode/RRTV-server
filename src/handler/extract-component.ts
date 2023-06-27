@@ -1,14 +1,13 @@
 import * as node from "vscode-languageserver/node";
 
-import { TextDocument } from "vscode-languageserver-textdocument";
+import {documents, connection} from '../server'
 
-import { BaseHandler } from "../interface/Handler";
+import { BaseHandler, ContinuousOutputHandler } from "../interface/Handler";
 
-import { textToAst, dataGenerator, modifier } from './utils-extract-component';
+const { textToAst, dataGenerator, modifier } = require('./utils-extract-component'); 
 
-export class ExtractComponentHandler extends BaseHandler<node.CodeAction[], node.CodeActionParams> {
-    handle(prevOutput: node.CodeAction[], request: node.CodeActionParams): node.CodeAction[] {
-        const documents: node.TextDocuments<TextDocument> = new node.TextDocuments(TextDocument)
+export class ExtractComponentHandler extends ContinuousOutputHandler<node.CodeAction[], node.CodeActionParams> {
+    concreteHandle(prevOutput: node.CodeAction[], request: node.CodeActionParams): node.CodeAction[] {
         const document = documents.get(request.textDocument.uri)
         const text = document.getText(request.range)
         const ast = textToAst(text)
@@ -17,22 +16,21 @@ export class ExtractComponentHandler extends BaseHandler<node.CodeAction[], node
             return [...prevOutput]
         }
 
-        const codeAction = node.CodeAction.create(
-            "Extract Component",
-            node.Command.create(
-                "Extract Component",
-                "rrtv.extractComponent",
-                [{ ast, specified }] //{newText, range} = modifier(ast, specified)
-            ),
-            node.CodeActionKind.RefactorExtract
-        );
+
+        const codeAction:node.CodeAction = {
+            title: "Extract-Component",
+            kind:   node.CodeActionKind.RefactorExtract,
+            data: document.uri
+        }
 
         const {newText, _range} = modifier(ast, specified)
+       
         const change: node.WorkspaceChange = new node.WorkspaceChange()
         const a = change.getTextEditChange(document)
-        a.replace(node.Range.create(_range.start, _range.end), newText)
-
+        connection.window.showInformationMessage(newText);
+        a.replace(request.range, newText)
         codeAction.edit = change.edit
+        connection.window.showInformationMessage(JSON.stringify(codeAction));
         return [...prevOutput, codeAction]
     }
 }

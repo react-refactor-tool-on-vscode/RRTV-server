@@ -16,9 +16,9 @@ import createHandler from "./interface/CreateHandler";
 
 import {ExtractComponentHandler} from './handler/extract-component'
 
-let connection = createConnection(ProposedFeatures.all);
+export let connection = createConnection(ProposedFeatures.all);
 
-let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+export let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
 connection.onInitialize((params: InitializeParams) => {
     const result: InitializeResult = {
@@ -27,7 +27,7 @@ connection.onInitialize((params: InitializeParams) => {
             completionProvider: {
                 resolveProvider: true,
             },
-            hoverProvider: true,
+            hoverProvider: false,
             codeActionProvider: true,
             executeCommandProvider: {
                 // TODO: commands be clarified and filled.
