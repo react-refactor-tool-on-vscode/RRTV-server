@@ -24,8 +24,8 @@ class AttrEditHandler extends ContinuousOutputHandler<
 > {
     protected concreteHandle(prevOutput: (CodeAction | Command)[], request: CodeActionParams): (CodeAction | Command)[] {
         const codeAction = generateCodeAction(request);
-        if (codeAction === undefined) return [...prevOutput];
-        else return [...prevOutput, codeAction];
+        if (codeAction === undefined) return undefined;
+        else return [...(prevOutput ?? []), codeAction];
     }
 }
 
@@ -38,20 +38,10 @@ class AttrEditExecuteCommandHandler extends BaseHandler<void, ExecuteCommandPara
             const text = textDocument.getText(range);
             const modifiedCode = addTabStop(text, option);
             if (!modifiedCode) return;
-            const documentChanges = [
-                TextDocumentEdit.create({
-                    uri: textDocument.uri,
-                    version: textDocument.version
-                },
-                    [TextEdit.del(range)]
-                )
-            ];
-            connection.workspace.applyEdit({
-                documentChanges: documentChanges
-            });
+          
             connection.sendRequest(ExecuteCommandRequest.method, {
-                command: "run snippet",
-                arguments: [range.start, modifiedCode]
+                command: "provide-attribute.2",
+                arguments: [textDocument.uri, range, modifiedCode]
             }) 
             return;
         } else this.nextHandler.handle(null, request);
@@ -82,4 +72,4 @@ function generateCodeAction(request: CodeActionParams): CodeAction | undefined {
     return codeAction;
 }
 
-export { AttrEditHandler, addTabStop};
+export { AttrEditHandler, addTabStop, AttrEditExecuteCommandHandler};
