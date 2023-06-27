@@ -23,7 +23,8 @@ import {
 export const connection = createConnection(ProposedFeatures.all);
 
 export const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
-import { AttrEditHandler, addTabStop, generateSnippet } from "./handler/attributeEdit";
+import { AttrEditHandler } from "./handler/attributeEdit";
+import { addTabStop } from "./helper/attrInsertor";
 
 
 
@@ -61,7 +62,8 @@ connection.onExecuteCommand(
     )
 );
 
-connection.onCodeAction(createHandler<(CodeAction | Command)[], CodeActionParams> (
+connection.onCodeAction(
+    createHandler<(CodeAction | Command)[], CodeActionParams> (
     [
         new AttrEditHandler()
     ], 
