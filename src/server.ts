@@ -71,7 +71,7 @@ connection.onCodeAction(createHandler<(CodeAction | Command)[], CodeActionParams
 
 connection.onExecuteCommand((params) => {
     const command = params.command;
-    if(command === 'provide attribute exec') {
+    if(command === 'provide-attribute.1') {
         generateSnippet(params);
     }
 })

@@ -14,6 +14,7 @@ import {
 } from "vscode-languageserver/node";
 import {BaseHandler, ContinuousOutputHandler} from '../interface/Handler'
 import { connection, documents } from '../server'
+import { DocumentUri } from "vscode-languageserver-textdocument";
 
 class AttrEditHandler extends ContinuousOutputHandler<
     (CodeAction | Command)[],
@@ -40,25 +41,48 @@ function generateCodeAction(request:CodeActionParams): CodeAction | undefined {
         kind: CodeActionKind.Refactor,
         data: request.textDocument.uri,
         command: Command.create(
-            'provide attribute',
-            'provide attribute',
-            {
-                document: request.textDocument.uri,
-                range: request.range,
-            },
+            'provide-attribute.0',
+            'provide-attribute.0',
+            request.textDocument.uri,
+            request.range,
             options,
         )
     }
     return codeAction;
 }
 
-function addTabStop(text:string):string | undefined {
+function addTabStop(text:string, option:number):string | undefined {
     if(!hasJSXCode(text)) return;
+    let modifiedCode:string = text;
     const regex = /<(\w+)((?:\s+\w+(?:\s*=\s*(?:".*?"|'.*?'|[\^'">\s]+))?)+\s*|\s*)>/g;
-    const modifiedCode = text.replace(regex, (match, tagName, attributes) => {
-        const attributeString = ' $1=$2';
-        return `<${tagName}${attributes}${attributeString}>`;
-    });
+    if(option === 1) {
+        modifiedCode = text.replace(regex, (match, tagName, attributes) => {
+            const attributeString = ' $1=$2';
+            return `<${tagName}${attributes}${attributeString}>`;
+        });
+    } else if(option === 2) {
+        let i = 2;
+        modifiedCode = text.replace(regex, (match, tagName, attributes) => {
+            const attributeString = ` $1=$${i}`;
+            i ++;
+            return `<${tagName}${attributes}${attributeString}>`;
+        });
+    } else if (option === 3) {
+        let i = 2;
+        modifiedCode = text.replace(regex, (match, tagName, attributes) => {
+            const attributeString = ` $${i}=$1`;
+            i ++;
+            return `<${tagName}${attributes}${attributeString}>`;
+        });
+    } else {
+        let i = 1;
+        modifiedCode = text.replace(regex, (match, tagName, attributes) => {
+            const attributeString = ` $${i}=$${i + 1}`;
+            i += 2;
+            return `<${tagName}${attributes}${attributeString}>`;
+        });
+    }
+    
     return modifiedCode;
 }
 
@@ -69,11 +93,12 @@ function hasJSXCode(code: string): boolean {
 
 async function generateSnippet(params:ExecuteCommandParams) {
     if(!params.arguments) return;
-    const uri = params.arguments[0].document;
-    const range = params.arguments[0].range;
+    const uri:DocumentUri = params.arguments[0];
+    const range:Range = params.arguments[1];
+    const option:number = params.arguments[2];
     const document = documents.get(uri);
     const text = document.getText(range);
-    const modifiedCode = addTabStop(text);
+    const modifiedCode = addTabStop(text, option);
     if(!modifiedCode) return;
     const documentChanges = [
 		TextDocumentEdit.create({
