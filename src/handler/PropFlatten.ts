@@ -18,12 +18,12 @@ import traverse from "@babel/traverse";
 
 import { connection, documents } from "../server";
 import parseToAst from "../helper/ParseToAst";
-import { getTrailingIdsFromIdentifier } from "./getTrailingIdsFromIdentifier";
-import { canBeDestructed } from "./canBeDestructed";
+import { getTrailingIdsFromIdentifier } from "../helper/getTrailingIdsFromIdentifier";
+import { canBeDestructed } from "../helper/canBeDestructed";
 import { SourceLocation } from "@babel/types";
 import { IsRangeInLoc } from "../helper/RangeLoc";
-import { idsToTextEdit } from "./idsToTextEdit";
-import { locToRange } from "./locToRange";
+import { idsToTextEdit } from "../helper/idsToTextEdit";
+import { locToRange } from "../helper/locToRange";
 
 const commandName = "rrtv.propFlatten";
 

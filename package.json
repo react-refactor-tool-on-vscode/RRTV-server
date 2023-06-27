@@ -9,7 +9,6 @@
   "scripts": {
     "test": "jest",
     "compile": "tsc -p ./",
-    "pretest": "npm run compile && npm run lint",
     "watch": "tsc -watch -p ./"
   },
   "engines": {
