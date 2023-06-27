@@ -1,11 +1,15 @@
 import { parse } from "@babel/parser";
 
 function parseToAst(text: string) {
-    return parse(text, {
-        sourceType: "module",
-        errorRecovery: true,
-        plugins: ["jsx"],
-    });
+    try {
+        return parse(text, {
+            sourceType: "module",
+            errorRecovery: true,
+            plugins: ["jsx"],
+        });
+    } catch (error) {
+        return parse("");
+    }
 }
 
 export default parseToAst;
