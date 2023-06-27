@@ -23,6 +23,9 @@ import {
 export const connection = createConnection(ProposedFeatures.all);
 
 export const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+import { AttrEditHandler, AttrEditExecuteCommandHandler} from "./handler/attributeEdit";
+
+
 
 connection.onInitialize((params: InitializeParams) => {
     const result: InitializeResult = {
@@ -31,7 +34,12 @@ connection.onInitialize((params: InitializeParams) => {
             codeActionProvider: true,
             executeCommandProvider: {
                 // TODO: commands be clarified and filled.
-                commands: ["rrtv.propFlatten"],
+                commands: [
+                    "rrtv.propFlatten",
+                    "provide-attribute.0",
+                    "provide-attribute.1",
+                    "provide-attribute.2"
+                ],
             },
         },
     };
@@ -41,17 +49,24 @@ connection.onInitialize((params: InitializeParams) => {
 
 connection.onCodeAction(
     createHandler<(Command | CodeAction)[], CodeActionParams>(
-        [new PropFlattenCodeActionHandler()],
+        [
+            new PropFlattenCodeActionHandler(),
+            new AttrEditHandler()
+        ],
         []
     )
 );
 
 connection.onExecuteCommand(
     createHandler<void, ExecuteCommandParams>(
-        [new PropFlattenExecuteCommandHandler()],
+        [
+            new PropFlattenExecuteCommandHandler(),
+            new AttrEditExecuteCommandHandler()
+        ],
         null
     )
 );
+
 
 // Start listening.
 documents.listen(connection);
