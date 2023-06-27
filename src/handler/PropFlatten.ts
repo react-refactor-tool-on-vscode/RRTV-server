@@ -49,7 +49,7 @@ class PropFlattenExecuteCommandHandler extends BaseHandler<
         if (request.command == commandName) {
             // Get input.
             const textDocument = documents.get(request.arguments[0]);
-            const range: Range = request[1];
+            const range: Range = request.arguments[1];
             const identifierName = request.arguments[2];
             // Send edits.
             connection.workspace.applyEdit({
