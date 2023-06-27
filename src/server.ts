@@ -14,7 +14,8 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 
 import createHandler from "./interface/CreateHandler";
 
-import { AttrEditHandler, addTabStop, generateSnippet } from "./handler/attributeEdit";
+import { AttrEditHandler, generateSnippet } from "./handler/attributeEdit";
+import { addTabStop } from "./helper/attrInsertor";
 
 export let connection = createConnection(ProposedFeatures.all);
 
@@ -42,7 +43,8 @@ connection.onInitialize((params: InitializeParams) => {
 
 // Usage: connection.onCodeAction(createHandler<(CodeAction | Command)[], CodeActionParams>([], []));
 
-connection.onCodeAction(createHandler<(CodeAction | Command)[], CodeActionParams> (
+connection.onCodeAction(
+    createHandler<(CodeAction | Command)[], CodeActionParams> (
     [
         new AttrEditHandler()
     ], 
