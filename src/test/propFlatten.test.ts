@@ -2,8 +2,11 @@ import { parse } from "@babel/parser";
 import * as t from "@babel/types";
 import traverse, { NodePath } from "@babel/traverse";
 import generate from "@babel/generator";
-import { canBeDestructed } from "../handler/PropFlatten";
+import { canBeDestructed } from "../handler/canBeDestructed";
+import { getTrailingIdsFromIdentifier } from "../handler/getTrailingIdsFromIdentifier";
 import { Range } from "vscode-languageserver";
+import parseToAst from "../helper/ParseToAst";
+import { generateObjectPattern } from "../handler/generateObjectPattern";
 
 const text1 = `function TodoItem({item: {source, text}}) {
     return (
@@ -14,11 +17,7 @@ const text1 = `function TodoItem({item: {source, text}}) {
     )
 }`;
 
-const ast1 = parse(text1, {
-    sourceType: "module",
-    errorRecovery: true,
-    plugins: ["jsx"],
-});
+const ast1 = parseToAst(text1);
 
 const text2 = `function TodoItem(item) {
     return (
@@ -29,11 +28,7 @@ const text2 = `function TodoItem(item) {
     )
 }`;
 
-const ast2 = parse(text2, {
-    sourceType: "module",
-    errorRecovery: true,
-    plugins: ["jsx"],
-});
+const ast2 = parseToAst(text2);
 
 it("find all jsx identifier", () => {
     const jsxIdentifiers: any[] = [];
@@ -139,11 +134,60 @@ test("check param can be destructed", () => {
 
     expect(canBeDestructed(Range.create(0, 0, 0, 0), ast2)).toEqual({
         beDestructed: false,
-        identifierName: null,
+        identifierName: undefined,
     });
 
     expect(canBeDestructed(Range.create(0, 18, 0, 21), ast2)).toEqual({
         beDestructed: true,
         identifierName: "item",
     });
+});
+
+test("get trailing ids", () => {
+    expect(
+        getTrailingIdsFromIdentifier(ast2, Range.create(0, 18, 0, 19), "item")
+            .ids
+    ).toEqual([["source"], ["text"]]);
+
+    expect(
+        getTrailingIdsFromIdentifier(ast2, Range.create(0, 18, 0, 19), "item")
+            .memberExprLocs
+    ).toContainEqual({
+        end: { column: 29, index: 79, line: 4 },
+        filename: undefined,
+        identifierName: undefined,
+        start: { column: 18, index: 68, line: 4 },
+    });
+
+    const text = `function Test({item}) {
+        return (
+            <>
+            <img src={item.img.source} alt={item.img.alternative} />
+            <span>{item.text}</span>
+            </>
+        )
+    }`;
+    const ast = parseToAst(text);
+
+    expect(
+        getTrailingIdsFromIdentifier(ast, Range.create(0, 17, 0, 17), "item")
+            .ids
+    ).toEqual([["img", "source"], ["img", "alternative"], ["text"]]);
+
+    // Impossible condition.
+    expect(
+        getTrailingIdsFromIdentifier(ast, Range.create(0, 0, 0, 0), "item").ids
+    ).toEqual([]);
+});
+
+it("generate object pattern", () => {
+    expect(
+        generateObjectPattern([["img", "src"], ["img", "alt"], ["text"]])
+    ).toMatchSnapshot();
+});
+
+it("generate object pattern code", () => {
+    expect(
+        generate(generateObjectPattern([["img", "src"], ["img", "alt"], ["text"]])).code
+    ).toMatchSnapshot();
 });

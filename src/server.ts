@@ -3,6 +3,7 @@ import {
     CodeActionParams,
     Command,
     createConnection,
+    ExecuteCommandParams,
     InitializeParams,
     InitializeResult,
     ProposedFeatures,
@@ -14,7 +15,10 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 
 import createHandler from "./interface/CreateHandler";
 
-import { PropFlattenCodeActionHandler } from "./handler/PropFlatten";
+import {
+    PropFlattenCodeActionHandler,
+    PropFlattenExecuteCommandHandler,
+} from "./handler/PropFlatten";
 
 export const connection = createConnection(ProposedFeatures.all);
 
@@ -24,10 +28,6 @@ connection.onInitialize((params: InitializeParams) => {
     const result: InitializeResult = {
         capabilities: {
             textDocumentSync: TextDocumentSyncKind.Incremental,
-            completionProvider: {
-                resolveProvider: true,
-            },
-            hoverProvider: true,
             codeActionProvider: true,
             executeCommandProvider: {
                 // TODO: commands be clarified and filled.
@@ -43,6 +43,13 @@ connection.onCodeAction(
     createHandler<(Command | CodeAction)[], CodeActionParams>(
         [new PropFlattenCodeActionHandler()],
         []
+    )
+);
+
+connection.onExecuteCommand(
+    createHandler<void, ExecuteCommandParams>(
+        [new PropFlattenExecuteCommandHandler()],
+        null
     )
 );
 

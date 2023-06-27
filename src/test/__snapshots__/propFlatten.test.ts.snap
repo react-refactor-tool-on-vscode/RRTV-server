@@ -26,6 +26,81 @@ exports[`find all jsx identifier 1`] = `
 
 exports[`functionTypeParam test 1`] = `"id: string"`;
 
+exports[`generate object pattern 1`] = `
+{
+  "properties": [
+    {
+      "computed": false,
+      "decorators": null,
+      "key": {
+        "name": "img",
+        "type": "Identifier",
+      },
+      "shorthand": false,
+      "type": "ObjectProperty",
+      "value": {
+        "properties": [
+          {
+            "computed": false,
+            "decorators": null,
+            "key": {
+              "name": "src",
+              "type": "Identifier",
+            },
+            "shorthand": false,
+            "type": "ObjectProperty",
+            "value": {
+              "name": "src",
+              "type": "Identifier",
+            },
+          },
+          {
+            "computed": false,
+            "decorators": null,
+            "key": {
+              "name": "alt",
+              "type": "Identifier",
+            },
+            "shorthand": false,
+            "type": "ObjectProperty",
+            "value": {
+              "name": "alt",
+              "type": "Identifier",
+            },
+          },
+        ],
+        "type": "ObjectPattern",
+      },
+    },
+    {
+      "computed": false,
+      "decorators": null,
+      "key": {
+        "name": "text",
+        "type": "Identifier",
+      },
+      "shorthand": false,
+      "type": "ObjectProperty",
+      "value": {
+        "name": "text",
+        "type": "Identifier",
+      },
+    },
+  ],
+  "type": "ObjectPattern",
+}
+`;
+
+exports[`generate object pattern code 1`] = `
+"{
+  img: {
+    src: src,
+    alt: alt
+  },
+  text: text
+}"
+`;
+
 exports[`get params type 1`] = `"object"`;
 
 exports[`path between parent and array(container) 1`] = `true`;
