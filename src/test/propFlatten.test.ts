@@ -2,11 +2,11 @@ import { parse } from "@babel/parser";
 import * as t from "@babel/types";
 import traverse, { NodePath } from "@babel/traverse";
 import generate from "@babel/generator";
-import { canBeDestructed } from "../handler/canBeDestructed";
-import { getTrailingIdsFromIdentifier } from "../handler/getTrailingIdsFromIdentifier";
+import { canBeDestructed } from "../helper/canBeDestructed";
+import { getTrailingIdsFromIdentifier } from "../helper/getTrailingIdsFromIdentifier";
 import { Range } from "vscode-languageserver";
 import parseToAst from "../helper/ParseToAst";
-import { generateObjectPattern } from "../handler/generateObjectPattern";
+import { generateObjectPattern } from "../helper/generateObjectPattern";
 
 const text1 = `function TodoItem({item: {source, text}}) {
     return (
@@ -65,7 +65,7 @@ it("get params type", () => {
         },
     });
 
-    expect(result).toMatchSnapshot();
+    expect(result!).toMatchSnapshot();
 });
 
 it("can get first param", () => {
@@ -83,7 +83,7 @@ it("can get first param", () => {
         },
     });
 
-    expect(result).toMatchSnapshot();
+    expect(result!).toMatchSnapshot();
 });
 
 it("functionTypeParam test", () => {
@@ -130,16 +130,19 @@ test("check param can be destructed", () => {
     expect(canBeDestructed(Range.create(0, 19, 0, 19), ast2)).toEqual({
         beDestructed: true,
         identifierName: "item",
+        isDirectParam: true,
     });
 
     expect(canBeDestructed(Range.create(0, 0, 0, 0), ast2)).toEqual({
         beDestructed: false,
         identifierName: undefined,
+        isDirectParam: false,
     });
 
     expect(canBeDestructed(Range.create(0, 18, 0, 21), ast2)).toEqual({
         beDestructed: true,
         identifierName: "item",
+        isDirectParam: true,
     });
 });
 

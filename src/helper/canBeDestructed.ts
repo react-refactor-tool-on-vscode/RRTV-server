@@ -1,8 +1,8 @@
 import traverse, { NodePath, TraverseOptions } from "@babel/traverse";
 import * as t from "@babel/types";
 import { Range } from "vscode-languageserver";
-import { IsRangeInLoc } from "../helper/RangeLoc";
-import { isHeadIdOfMemberExpr } from "../helper/IsHeadIdOfMemberExpr";
+import { IsRangeInLoc } from "./RangeLoc";
+import { isHeadIdOfMemberExpr } from "./IsHeadIdOfMemberExpr";
 
 export function canBeDestructed(
     range: Range,
