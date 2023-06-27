@@ -3,6 +3,7 @@ import {
     CodeActionParams,
     Command,
     createConnection,
+    ExecuteCommandParams,
     InitializeParams,
     InitializeResult,
     ProposedFeatures,
@@ -14,22 +15,23 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 
 import createHandler from "./interface/CreateHandler";
 
-let connection = createConnection(ProposedFeatures.all);
+import {
+    PropFlattenCodeActionHandler,
+    PropFlattenExecuteCommandHandler,
+} from "./handler/PropFlatten";
 
-let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+export const connection = createConnection(ProposedFeatures.all);
+
+export const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
 connection.onInitialize((params: InitializeParams) => {
     const result: InitializeResult = {
         capabilities: {
             textDocumentSync: TextDocumentSyncKind.Incremental,
-            completionProvider: {
-                resolveProvider: true,
-            },
-            hoverProvider: true,
             codeActionProvider: true,
             executeCommandProvider: {
                 // TODO: commands be clarified and filled.
-                commands: [],
+                commands: ["rrtv.propFlatten"],
             },
         },
     };
@@ -37,7 +39,19 @@ connection.onInitialize((params: InitializeParams) => {
     return result;
 });
 
-// Usage: connection.onCodeAction(createHandler<(CodeAction | Command)[], CodeActionParams>([], []));
+connection.onCodeAction(
+    createHandler<(Command | CodeAction)[], CodeActionParams>(
+        [new PropFlattenCodeActionHandler()],
+        []
+    )
+);
+
+connection.onExecuteCommand(
+    createHandler<void, ExecuteCommandParams>(
+        [new PropFlattenExecuteCommandHandler()],
+        null
+    )
+);
 
 // Start listening.
 documents.listen(connection);
