@@ -51,6 +51,7 @@ class PropFlattenExecuteCommandHandler extends BaseHandler<
             const textDocument = documents.get(request.arguments[0]);
             const range: Range = request.arguments[1];
             const identifierName = request.arguments[2];
+            const isDirectParam = request.arguments[3];
             // Send edits.
             connection.workspace.applyEdit({
                 documentChanges: [
@@ -59,11 +60,7 @@ class PropFlattenExecuteCommandHandler extends BaseHandler<
                             uri: textDocument.uri,
                             version: textDocument.version,
                         },
-                        generateTextEdit(
-                            textDocument,
-                            range,
-                            identifierName
-                        )
+                        generateTextEdit(textDocument, range, identifierName, isDirectParam)
                     ),
                 ],
             });
@@ -88,17 +85,18 @@ function generateCodeAction(request: CodeActionParams): CodeAction | undefined {
                 commandName,
                 request.textDocument.uri,
                 request.range,
-                canBeDestructedResult.identifierName
+                canBeDestructedResult.identifierName,
+                canBeDestructedResult.isDirectParam
             ),
             CodeActionKind.RefactorRewrite
         );
 }
 
-// TODO: Implement generateTextEdit
 function generateTextEdit(
     document: TextDocument,
     range: Range,
-    identifierName: string
+    identifierName: string,
+    isDirectParam: boolean
 ): TextEdit[] {
     const code = document.getText();
     const ast = parseToAst(code);
@@ -126,9 +124,8 @@ function generateTextEdit(
             paramLoc.end.column
         ),
         trailingIds.ids,
-        trailingIds.memberExprLocs.map((loc) =>
-            locToRange(loc)
-        )
+        trailingIds.memberExprLocs.map((loc) => locToRange(loc)),
+        isDirectParam
     );
 }
 

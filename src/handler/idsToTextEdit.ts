@@ -9,10 +9,17 @@ export function idsToTextEdit(
     document: TextDocument,
     paramRange: Range,
     ids: Array<string[]>,
-    refRanges: Range[]
+    refRanges: Range[],
+    isDirectParam: boolean
 ): TextEdit[] {
-    let patternParam: t.Node;
-    const paramCode = generate(generateObjectPattern(ids)).code;
+    let patternParam: t.Node = generateObjectPattern(ids);
+    let node: t.Node = isDirectParam
+        ? patternParam
+        : t.objectProperty(
+              t.identifier(document.getText(paramRange)),
+              patternParam
+          );
+    const paramCode = generate(node).code;
     const delRanges = refRanges.map((refRange) => {
         let refText: string = document.getText(refRange);
         const index = _.findLastIndex(refText, (c) => c == ".");
