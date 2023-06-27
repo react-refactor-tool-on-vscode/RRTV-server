@@ -2,11 +2,11 @@ import { parse } from "@babel/parser";
 import * as t from "@babel/types";
 import traverse, { NodePath } from "@babel/traverse";
 import generate from "@babel/generator";
-import { canBeDestructed } from "../handler/canBeDestructed";
-import { getTrailingIdsFromIdentifier } from "../handler/getTrailingIdsFromIdentifier";
+import { canBeDestructed } from "../helper/canBeDestructed";
+import { getTrailingIdsFromIdentifier } from "../helper/getTrailingIdsFromIdentifier";
 import { Range } from "vscode-languageserver";
 import parseToAst from "../helper/ParseToAst";
-import { generateObjectPattern } from "../handler/generateObjectPattern";
+import { generateObjectPattern } from "../helper/generateObjectPattern";
 
 const text1 = `function TodoItem({item: {source, text}}) {
     return (
