@@ -69,8 +69,6 @@ connection.onExecuteCommand(
 );
 
 
-
-
 // Start listening.
 documents.listen(connection);
 connection.listen();
