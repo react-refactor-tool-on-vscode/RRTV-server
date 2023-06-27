@@ -24,7 +24,6 @@ export const connection = createConnection(ProposedFeatures.all);
 
 export const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 import { AttrEditHandler, AttrEditExecuteCommandHandler} from "./handler/attributeEdit";
-import { addTabStop } from "./helper/attrInsertor";
 
 
 
