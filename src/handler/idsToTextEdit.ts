@@ -22,7 +22,7 @@ export function idsToTextEdit(
                     refRange.start.line,
                     refRange.start.character,
                     refRange.end.line,
-                    refRange.start.character + index
+                    refRange.start.character + index + 1
                 )
             );
         }
