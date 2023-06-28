@@ -1,4 +1,6 @@
-const code = `const renderButton = (text, onClick) => {
+/* 
+// ============= Example ================
+const text = `const renderButton = (text, onClick) => {
     return (
         <>
             <button onClick={() => {
@@ -24,22 +26,22 @@ const code = `const renderButton = (text, onClick) => {
         </>
     );
 }`
-const index = 120
+const index = 120 */
 
 import * as jscodeshift from 'jscodeshift';
 
-export const transform = (file: jscodeshift.FileInfo, api: jscodeshift.API, options: jscodeshift.Options) => {
+const transform = (file: jscodeshift.FileInfo, api: jscodeshift.API, options: jscodeshift.Options) => {
     const j = api.jscodeshift;
     const root = j(file.source);
     let count = 0
     let _handleType = new handleType()
     root.find(j.ArrowFunctionExpression)
-        .filter(path => _handleType.arrowFunctionExpression(path) && handleIndex(index, path))
+        .filter(path => _handleType.arrowFunctionExpression(path) && handleIndex(options.index, path))
         .forEach((path) => { handler(j, path, count++, _handleType.args) })
     root.find(j.FunctionExpression)
-        .filter(path => _handleType.functinoExpression(path, j, _handleType.args) && handleIndex(index, path))
+        .filter(path => _handleType.functinoExpression(path, j, _handleType.args) && handleIndex(options.index, path))
         .forEach((path) => { handler(j, path, count++, _handleType.args) })
-    
+
     if (_handleType.args[0]) {
         const newRange = _handleType.args[0].get(0).node.loc
         return {
@@ -117,27 +119,49 @@ class handleType {
                     type: "CallExpression"
                 }
             }).length > 0
-            console.log(check)
+            // console.log(check)
         }
         return !check
     }
 }
-
-const output = transform(
-    {
-        source: code,
-        path: ""
-    },
-    {
-        jscodeshift,
-        j: jscodeshift,
-        stats: () => { },
-        report(msg) {
-
+export const checkAttributeExtract = (text: string, index: number) => {
+    const output = transform(
+        {
+            source: text,
+            path: ""
         },
-    },
-    {}
-)
+        {
+            jscodeshift,
+            j: jscodeshift,
+            stats: () => { },
+            report(msg) {
 
-console.log(output)
+            },
+        },
+        {
+            index
+        }
+    )
 
+    // console.log(output)
+}
+
+/* const output = checkAttributeExtract(text, index) */
+
+/* if (output.newText === undefined) {
+    console.error("条件不满足")
+}
+else {
+    console.log("条件满足")
+    /// use output.newText & output.newRange
+    const newRange = {
+        start: {
+            line: output.newRange.start.line,
+            character: output.newRange.start.column
+        },
+        end: {
+            line: output.newRange.end.line,
+            character: output.newRange.end.column
+        }
+    }
+} */
