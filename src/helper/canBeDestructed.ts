@@ -8,10 +8,10 @@ export function canBeDestructed(
     range: Range,
     ast: t.Node
 ): { beDestructed: boolean; identifierName: string; isDirectParam: boolean } {
-    let isParamSelected: boolean = false;
+    let isParamSelected = false;
     let identifierName: string;
-    let hasTrailing: boolean = false;
-    let isDirectParam: boolean = false;
+    let hasTrailing = false;
+    let isDirectParam = false;
 
     const findIdentifier: TraverseOptions<t.Node> = {
         Identifier(path) {

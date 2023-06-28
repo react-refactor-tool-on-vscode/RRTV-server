@@ -12,8 +12,8 @@ export function idsToTextEdit(
     refRanges: Range[],
     isDirectParam: boolean
 ): TextEdit[] {
-    let patternParam: t.Node = generateObjectPattern(ids);
-    let node: t.Node = isDirectParam
+    const patternParam: t.Node = generateObjectPattern(ids);
+    const node: t.Node = isDirectParam
         ? patternParam
         : t.objectProperty(
               t.identifier(document.getText(paramRange)),
@@ -21,7 +21,7 @@ export function idsToTextEdit(
           );
     const paramCode = generate(node).code;
     const delRanges = refRanges.map((refRange) => {
-        let refText: string = document.getText(refRange);
+        const refText: string = document.getText(refRange);
         const index = _.findLastIndex(refText, (c) => c == ".");
         if (index != -1) {
             return TextEdit.del(
