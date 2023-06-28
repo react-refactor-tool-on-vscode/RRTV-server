@@ -1,32 +1,19 @@
 /* 
 // ============= Example ================
-const text = `const renderButton = (text, onClick) => {
-    return (
-        <>
-            <button onClick={() => {
-                console.log('Button clicked!');
-            }}>{text}</button>
-            <button onClick={function () {
-                console.log('Button clicked!')
-            }}></button>
-            <button onClick={newFunction}></button>
-            <button onClick={function (e) {
-                console.log('Button clicked!', e)
-            }}></button>
-            <button onClick={e => NewFunction(e)}></button>
-            <button onClick={function (e, ee) {
-                console.log('Button clicked!', ee, e)
-            }}></button>
-            <button onClick={(e) => {
-                console.log('Button clicked!', e);
-            }}>{text}</button>
-            <button onClick={function(e) {
-                return NewFunction00(e)
-            }}></button>
-        </>
-    );
+const text = `function MyComponent(props) {
+  return (
+    <div>
+       <h1>Hello {props.name}!</h1>
+       {(handleClick)=>renderButton('Click me', handleClick)}
+       {()=><button>{renderButton('Click me')}</button>}
+       {()=>giveButton()}
+       {(renderButton)=><button>{renderButton('Click me')}</button>}
+       {(renderButton, e)=><button>{renderButton('Click me')}</button>}
+       {(renderButton, e, d)=>{return <button>{renderButton('Click me')}</button>}}
+    </div>
+  );
 }`
-const index = 120 */
+const index = 164 */
 
 import * as jscodeshift from 'jscodeshift';
 
@@ -41,14 +28,37 @@ const transform = (file: jscodeshift.FileInfo, api: jscodeshift.API, options: js
             newRange: undefined
         }
     }
-    let count = 0
     const _handleType = new handleType()
+
     root.find(j.ArrowFunctionExpression)
-        .filter(path => _handleType.arrowFunctionExpression(path) && handleIndex(options.index, path))
-        .forEach((path) => { handler(j, path, count++, _handleType.args) })
-    root.find(j.FunctionExpression)
-        .filter(path => _handleType.functinoExpression(path, j, _handleType.args) && handleIndex(options.index, path))
-        .forEach((path) => { handler(j, path, count++, _handleType.args) })
+        .filter((path: any) => _handleType.arrowFunctionExpression(path) && handleIndex(options.index, path))
+        .forEach((path: any) => {
+            const jsxExpressions = j(path).closest(j.JSXExpressionContainer)
+            if (!jsxExpressions.length) return
+            const functionName = "${1:NewFunction}";
+            const functionBody = path.node.body.body ? path.node.body.body : [];
+            let functionReturn: any
+            if (functionBody.length === 0) {
+                functionReturn = j.returnStatement(path.node.body)
+            }
+            const newFunction = j.functionDeclaration(
+                j.identifier(functionName),
+                path.node.params,
+                functionBody.length ? j.blockStatement(functionBody) : j.blockStatement([functionReturn])
+            );
+            const returns = root.find(j.ReturnStatement).filter((_path: any) => { if (_path.node.end > path.node.end) return _path }).at(0)
+            returns.insertBefore(newFunction)
+
+            const newFunctionCallwithparams = j.callExpression(j.identifier(functionName), path.node.params);
+            const newArrowFunctionExpression = j.arrowFunctionExpression(path.node.params, newFunctionCallwithparams)
+            if (path.node.params.length === 0)
+                j(path).replaceWith(j.identifier(functionName)) //ok
+            else j(path).replaceWith(newArrowFunctionExpression)
+
+            const findFD = returns.closest(j.FunctionDeclaration)
+            const findDefination = findFD.length ? findFD : returns.closest(j.VariableDeclaration);
+            _handleType.args.push(findDefination)
+        })
 
     if (_handleType.args[0]) {
         const newRange = _handleType.args[0].get(0).node.loc
@@ -65,7 +75,7 @@ const transform = (file: jscodeshift.FileInfo, api: jscodeshift.API, options: js
     }
 }
 
-function handler(j: jscodeshift.JSCodeshift, path: any, count: number, ...rest: any[]) {
+function handler(j: jscodeshift.JSCodeshift, path: any, ...rest: any[]) {
     const jsxAttributes = j(path).closest(j.JSXAttribute)
     if (!jsxAttributes.length) return
     const functionName = "${1:NewFunction}"
@@ -103,7 +113,6 @@ function seePosition(path: any, ...rest: any[]) {
 }
 
 class handleType {
-    // constructor() { }
     public args: any[] = []
     arrowFunctionExpression(path: any, ...rest: any[]) {
         /// 不识别 <button onClick={e => NewFunction(e)}></button>
@@ -117,6 +126,7 @@ class handleType {
     }
     functinoExpression(path: any, ...rest: any[]) {
         /// 不识别 <button onClick={function(e) { return NewFunction(e)}}></button>
+        const body = path.node.body;
         /// j 放在 rest[0]
         let check = false
         if (rest.length) {
@@ -129,7 +139,7 @@ class handleType {
         return !check
     }
 }
-export const checkAttributeExtract = (text: string, index: number) => {
+export const checkExpressExtract = (text: string, index: number) => {
     const output = transform(
         {
             source: text,
@@ -148,11 +158,10 @@ export const checkAttributeExtract = (text: string, index: number) => {
         }
     )
     return output;
-
-    // console.log(output)
 }
 
-/* const output = checkAttributeExtract(text, index) */
+/* const output = checkAttributeExtract(text, index)
+console.log(output) */
 
 /* if (output.newText === undefined) {
     console.error("条件不满足")
