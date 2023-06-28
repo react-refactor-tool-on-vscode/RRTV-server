@@ -18,9 +18,13 @@ const code = `const renderButton = (text, onClick) => {
             <button onClick={(e) => {
                 console.log('Button clicked!', e);
             }}>{text}</button>
+            <button onClick={function(e) {
+                return NewFunction00(e)
+            }}></button>
         </>
     );
 }`
+const index = 120
 
 import * as jscodeshift from 'jscodeshift';
 
@@ -29,9 +33,10 @@ const transform = (file: jscodeshift.FileInfo, api: jscodeshift.API, options: js
     const root = j(file.source);
     let count = 0
     root.find(j.ArrowFunctionExpression)
-        .filter(path => new handleType().arrowFunctionExpression(path) && handleIndex(34, path))
+        .filter(path => new handleType().arrowFunctionExpression(path) && handleIndex(index, path))
         .forEach((path) => { handler(j, path, count++) })
     root.find(j.FunctionExpression)
+        .filter(path => new handleType().functinoExpression(path, j) && handleIndex(index, path))
         .forEach((path) => { handler(j, path, count++) })
     return root.toSource();
 }
@@ -57,13 +62,21 @@ function handler(j: jscodeshift.JSCodeshift, path: any, count: number) {
 }
 
 function handleIndex(index: number, path: any): boolean {
-    console.log(path.node.start, path.node.end, index)
+    // seePosition(path, index)
+    if (path.node.start <= index && index <= path.node.end) {
+        return true
+    }
     return false
+}
+
+function seePosition(path: any, ...rest: any[]) {
+    console.log(path.node.start, path.node.end, ...rest)
 }
 
 class handleType {
     constructor() { }
-    arrowFunctionExpression(path: any) {
+    arrowFunctionExpression(path: any, ...rest: any[]) {
+        /// 不识别 <button onClick={e => NewFunction(e)}></button>
         const body = path.node.body;
         return (
             body.type === "JSXElement" ||
@@ -71,6 +84,22 @@ class handleType {
             body.type === "ArrowFunctionExpression" ||
             body.type === "BlockStatement"
         );
+    }
+    functinoExpression(path: any, ...rest: any[]) {
+        /// 不识别 <button onClick={function(e) { return NewFunction(e)}}></button>
+        const body = path.node.body;
+        /// j 放在 rest[0]
+        let check = false
+        if (rest.length) {
+            // console.log(rest[0](path).find(rest[0].ReturnStatement).length ? rest[0](path).find(rest[0].ReturnStatement).get(0).node.argument.type : null) /// true
+            check = rest[0](path).find(rest[0].ReturnStatement, {
+                argument: {
+                    type: "CallExpression"
+                }
+            }).length > 0
+            console.log(check)
+        }
+        return !check
     }
 }
 
