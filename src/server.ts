@@ -53,7 +53,8 @@ connection.onCodeAction(
     createHandler<(Command | CodeAction)[], CodeActionParams>(
         [
             new PropFlattenCodeActionHandler(),
-            new AttrEditHandler()
+            new AttrEditHandler(),
+            new ExtractAttrHandler()
         ],
         []
     )
@@ -69,12 +70,6 @@ connection.onExecuteCommand(
     )
 );
 
-
-connection.onCodeAction(
-    createHandler<(CodeAction | Command)[], CodeActionParams>([
-        new ExtractAttrHandler()
-    ], [])
-);
 
 // Start listening.
 documents.listen(connection);

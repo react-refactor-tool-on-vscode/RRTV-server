@@ -53,7 +53,7 @@ const transform = (file: jscodeshift.FileInfo, api: jscodeshift.API, options: js
     if (_handleType.args[0]) {
         const newRange = _handleType.args[0].get(0).node.loc
         return {
-            newText: root.toSource(),
+            newText: j(_handleType.args[0].__paths[0]).toSource(),
             newRange
         }
     }
