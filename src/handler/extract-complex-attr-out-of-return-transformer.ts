@@ -28,20 +28,34 @@ const index = 120
 
 import * as jscodeshift from 'jscodeshift';
 
-const transform = (file: jscodeshift.FileInfo, api: jscodeshift.API, options: jscodeshift.Options) => {
+export const transform = (file: jscodeshift.FileInfo, api: jscodeshift.API, options: jscodeshift.Options) => {
     const j = api.jscodeshift;
     const root = j(file.source);
     let count = 0
+    let _handleType = new handleType()
     root.find(j.ArrowFunctionExpression)
-        .filter(path => new handleType().arrowFunctionExpression(path) && handleIndex(index, path))
-        .forEach((path) => { handler(j, path, count++) })
+        .filter(path => _handleType.arrowFunctionExpression(path) && handleIndex(index, path))
+        .forEach((path) => { handler(j, path, count++, _handleType.args) })
     root.find(j.FunctionExpression)
-        .filter(path => new handleType().functinoExpression(path, j) && handleIndex(index, path))
-        .forEach((path) => { handler(j, path, count++) })
-    return root.toSource();
+        .filter(path => _handleType.functinoExpression(path, j, _handleType.args) && handleIndex(index, path))
+        .forEach((path) => { handler(j, path, count++, _handleType.args) })
+    
+    if (_handleType.args[0]) {
+        const newRange = _handleType.args[0].get(0).node.loc
+        return {
+            newText: root.toSource(),
+            newRange
+        }
+    }
+    else {
+        return {
+            newText: undefined,
+            newRange: undefined
+        }
+    }
 }
 
-function handler(j: jscodeshift.JSCodeshift, path: any, count: number) {
+function handler(j: jscodeshift.JSCodeshift, path: any, count: number, ...rest: any[]) {
     const jsxAttributes = j(path).closest(j.JSXAttribute)
     if (!jsxAttributes.length) return
     const functionName = "NewFunction" + count
@@ -50,8 +64,10 @@ function handler(j: jscodeshift.JSCodeshift, path: any, count: number) {
         path.node.params,
         j.blockStatement(path.node.body.body)
     );
-    jsxAttributes.closest(j.ReturnStatement)
-        .insertBefore(newFunction)
+
+    const returns = jsxAttributes.closest(j.ReturnStatement)
+    returns.insertBefore(newFunction)
+
     const newFunctionCall = j.callExpression(j.identifier(functionName), path.node.params);
     const newArrowFunctionExpression = j.arrowFunctionExpression(path.node.params, newFunctionCall)
     if (path.node.params.length === 0)
@@ -59,6 +75,9 @@ function handler(j: jscodeshift.JSCodeshift, path: any, count: number) {
     else
         j(path).replaceWith(newArrowFunctionExpression)
 
+    const findFD = returns.closest(j.FunctionDeclaration)
+    const findDefination = findFD.length ? findFD : returns.closest(j.VariableDeclaration);
+    rest[0].push(findDefination)
 }
 
 function handleIndex(index: number, path: any): boolean {
@@ -75,6 +94,7 @@ function seePosition(path: any, ...rest: any[]) {
 
 class handleType {
     constructor() { }
+    public args: any[] = []
     arrowFunctionExpression(path: any, ...rest: any[]) {
         /// 不识别 <button onClick={e => NewFunction(e)}></button>
         const body = path.node.body;
