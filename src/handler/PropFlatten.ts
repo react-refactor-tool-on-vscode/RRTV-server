@@ -36,8 +36,9 @@ class PropFlattenCodeActionHandler extends ContinuousOutputHandler<
         request: CodeActionParams
     ): (CodeAction | Command)[] {
         const codeAction = generateCodeAction(request);
-        if (codeAction == undefined) return undefined;
-        else return [...(prevOutput ?? []), codeAction];
+        if (codeAction) {
+            return [...(prevOutput ?? []), codeAction];
+        } else return prevOutput;
     }
 }
 
