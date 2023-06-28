@@ -1,0 +1,53 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`get internal test edit for single object pattern 1`] = `
+[
+  {
+    "newText": "{
+  item,
+  state: state
+}",
+    "range": {
+      "end": {
+        "character": 34,
+        "line": 0,
+      },
+      "start": {
+        "character": 28,
+        "line": 0,
+      },
+    },
+  },
+  {
+    "newText": "state",
+    "range": {
+      "end": {
+        "character": 47,
+        "line": 1,
+      },
+      "start": {
+        "character": 36,
+        "line": 1,
+      },
+    },
+  },
+]
+`;
+
+exports[`get internal test edit for single param 1`] = `
+[
+  {
+    "newText": "props.state",
+    "range": {
+      "end": {
+        "character": 47,
+        "line": 1,
+      },
+      "start": {
+        "character": 36,
+        "line": 1,
+      },
+    },
+  },
+]
+`;
