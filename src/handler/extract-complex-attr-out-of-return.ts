@@ -11,7 +11,7 @@ const code = `const renderButton = (text, onClick) => {
             <button onClick={function (e) {
                 console.log('Button clicked!', e)
             }}></button>
-            {/*<button onClick={e => NewFunction(e)}></button>*/}
+            <button onClick={e => NewFunction(e)}></button>
             <button onClick={function (e, ee) {
                 console.log('Button clicked!', ee, e)
             }}></button>
@@ -29,6 +29,7 @@ const transform = (file: jscodeshift.FileInfo, api: jscodeshift.API, options: js
     const root = j(file.source);
     let count = 0
     root.find(j.ArrowFunctionExpression)
+        .filter(path => new handleType().arrowFunctionExpression(path) && handleIndex(34, path))
         .forEach((path) => { handler(j, path, count++) })
     root.find(j.FunctionExpression)
         .forEach((path) => { handler(j, path, count++) })
@@ -55,21 +56,39 @@ function handler(j: jscodeshift.JSCodeshift, path: any, count: number) {
 
 }
 
+function handleIndex(index: number, path: any): boolean {
+    console.log(path.node.start, path.node.end, index)
+    return false
+}
+
+class handleType {
+    constructor() { }
+    arrowFunctionExpression(path: any) {
+        const body = path.node.body;
+        return (
+            body.type === "JSXElement" ||
+            body.type === "FunctionExpression" ||
+            body.type === "ArrowFunctionExpression" ||
+            body.type === "BlockStatement"
+        );
+    }
+}
+
 const output = transform(
     {
         source: code,
         path: ""
     },
     {
-      jscodeshift,
-      j: jscodeshift,
-      stats: () => {},
-      report(msg) {
-        
-      },
+        jscodeshift,
+        j: jscodeshift,
+        stats: () => { },
+        report(msg) {
+
+        },
     },
     {}
-  )
+)
 
 console.log(output)
 

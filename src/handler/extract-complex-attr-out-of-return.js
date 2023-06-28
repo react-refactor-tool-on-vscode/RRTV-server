@@ -1,12 +1,13 @@
 "use strict";
 exports.__esModule = true;
-var code = "const renderButton = (text, onClick) => {\n    return (\n        <>\n            <button onClick={() => {\n                console.log('Button clicked!');\n            }}>{text}</button>\n            <button onClick={function () {\n                console.log('Button clicked!')\n            }}></button>\n            <button onClick={newFunction}></button>\n            <button onClick={function (e) {\n                console.log('Button clicked!', e)\n            }}></button>\n            {/*<button onClick={e => NewFunction(e)}></button>*/}\n            <button onClick={function (e, ee) {\n                console.log('Button clicked!', ee, e)\n            }}></button>\n            <button onClick={(e) => {\n                console.log('Button clicked!', e);\n            }}>{text}</button>\n        </>\n    );\n}";
+var code = "const renderButton = (text, onClick) => {\n    return (\n        <>\n            <button onClick={() => {\n                console.log('Button clicked!');\n            }}>{text}</button>\n            <button onClick={function () {\n                console.log('Button clicked!')\n            }}></button>\n            <button onClick={newFunction}></button>\n            <button onClick={function (e) {\n                console.log('Button clicked!', e)\n            }}></button>\n            <button onClick={e => NewFunction(e)}></button>\n            <button onClick={function (e, ee) {\n                console.log('Button clicked!', ee, e)\n            }}></button>\n            <button onClick={(e) => {\n                console.log('Button clicked!', e);\n            }}>{text}</button>\n        </>\n    );\n}";
 var jscodeshift = require("jscodeshift");
 var transform = function (file, api, options) {
     var j = api.jscodeshift;
     var root = j(file.source);
     var count = 0;
     root.find(j.ArrowFunctionExpression)
+        .filter(function (path) { return new handleType().arrowFunctionExpression(path) && handleIndex(34, path); })
         .forEach(function (path) { handler(j, path, count++); });
     root.find(j.FunctionExpression)
         .forEach(function (path) { handler(j, path, count++); });
@@ -27,6 +28,22 @@ function handler(j, path, count) {
     else
         j(path).replaceWith(newArrowFunctionExpression);
 }
+function handleIndex(index, path) {
+    console.log(path.node.start, path.node.end, index);
+    return false;
+}
+var handleType = /** @class */ (function () {
+    function handleType() {
+    }
+    handleType.prototype.arrowFunctionExpression = function (path) {
+        var body = path.node.body;
+        return (body.type === "JSXElement" ||
+            body.type === "FunctionExpression" ||
+            body.type === "ArrowFunctionExpression" ||
+            body.type === "BlockStatement");
+    };
+    return handleType;
+}());
 var output = transform({
     source: code,
     path: ""
