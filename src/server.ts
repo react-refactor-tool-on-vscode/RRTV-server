@@ -20,12 +20,13 @@ import {
     PropFlattenExecuteCommandHandler,
 } from "./handler/PropFlatten";
 
+import { AttrEditHandler, AttrEditExecuteCommandHandler} from "./handler/attributeEdit";
+
+import {ExtractAttrHandler} from './handler/ExtractAttrHandler'
+
 export const connection = createConnection(ProposedFeatures.all);
 
 export const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
-import { AttrEditHandler, AttrEditExecuteCommandHandler} from "./handler/attributeEdit";
-
-
 
 connection.onInitialize((params: InitializeParams) => {
     const result: InitializeResult = {
@@ -38,7 +39,8 @@ connection.onInitialize((params: InitializeParams) => {
                     "rrtv.propFlatten",
                     "provide-attribute.0",
                     "provide-attribute.1",
-                    "provide-attribute.2"
+                    "provide-attribute.2",
+                    "extract-attribute.0"
                 ],
             },
         },
@@ -67,6 +69,12 @@ connection.onExecuteCommand(
     )
 );
 
+
+connection.onCodeAction(
+    createHandler<(CodeAction | Command)[], CodeActionParams>([
+        new ExtractAttrHandler()
+    ], [])
+);
 
 // Start listening.
 documents.listen(connection);
