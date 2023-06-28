@@ -28,12 +28,12 @@ const transform = (file: jscodeshift.FileInfo, api: jscodeshift.API, options: js
             newRange: undefined
         }
     }
-    let _handleType = new handleType()
+    const _handleType = new handleType()
 
     root.find(j.ArrowFunctionExpression)
         .filter((path: any) => _handleType.arrowFunctionExpression(path) && handleIndex(options.index, path))
         .forEach((path: any) => {
-            let jsxExpressions = j(path).closest(j.JSXExpressionContainer)
+            const jsxExpressions = j(path).closest(j.JSXExpressionContainer)
             if (!jsxExpressions.length) return
             const functionName = "${1:NewFunction}";
             const functionBody = path.node.body.body ? path.node.body.body : [];
@@ -113,7 +113,6 @@ function seePosition(path: any, ...rest: any[]) {
 }
 
 class handleType {
-    constructor() { }
     public args: any[] = []
     arrowFunctionExpression(path: any, ...rest: any[]) {
         /// 不识别 <button onClick={e => NewFunction(e)}></button>
@@ -131,18 +130,16 @@ class handleType {
         /// j 放在 rest[0]
         let check = false
         if (rest.length) {
-            // console.log(rest[0](path).find(rest[0].ReturnStatement).length ? rest[0](path).find(rest[0].ReturnStatement).get(0).node.argument.type : null) /// true
             check = rest[0](path).find(rest[0].ReturnStatement, {
                 argument: {
                     type: "CallExpression"
                 }
             }).length > 0
-            // console.log(check)
         }
         return !check
     }
 }
-export const checkAttributeExtract = (text: string, index: number) => {
+export const checkExpressExtract = (text: string, index: number) => {
     const output = transform(
         {
             source: text,
@@ -151,9 +148,9 @@ export const checkAttributeExtract = (text: string, index: number) => {
         {
             jscodeshift,
             j: jscodeshift,
-            stats: () => { },
+            stats: () => { return;},
             report(msg) {
-
+                return msg;
             },
         },
         {
@@ -161,8 +158,6 @@ export const checkAttributeExtract = (text: string, index: number) => {
         }
     )
     return output;
-
-    // console.log(output)
 }
 
 /* const output = checkAttributeExtract(text, index)

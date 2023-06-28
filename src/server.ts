@@ -22,7 +22,7 @@ import {
 
 import { AttrEditHandler, AttrEditExecuteCommandHandler} from "./handler/attributeEdit";
 
-import {ExtractAttrHandler} from './handler/ExtractAttrHandler'
+import {ExtractAttrHandler, ExtractExprHandler} from './handler/ExtractAttrHandler'
 
 export const connection = createConnection(ProposedFeatures.all);
 
@@ -54,7 +54,8 @@ connection.onCodeAction(
         [
             new PropFlattenCodeActionHandler(),
             new AttrEditHandler(),
-            new ExtractAttrHandler()
+            new ExtractAttrHandler(),
+            new ExtractExprHandler()
         ],
         []
     )
