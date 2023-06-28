@@ -14,18 +14,16 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 
 import createHandler from "./interface/CreateHandler";
 
-let connection = createConnection(ProposedFeatures.all);
+import {ExtractAttrHandler} from './handler/ExtractAttrHandler'
 
-let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+export const connection = createConnection(ProposedFeatures.all);
+
+export const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
 connection.onInitialize((params: InitializeParams) => {
     const result: InitializeResult = {
         capabilities: {
             textDocumentSync: TextDocumentSyncKind.Incremental,
-            completionProvider: {
-                resolveProvider: true,
-            },
-            hoverProvider: true,
             codeActionProvider: true,
             executeCommandProvider: {
                 // TODO: commands be clarified and filled.
@@ -38,6 +36,12 @@ connection.onInitialize((params: InitializeParams) => {
 });
 
 // Usage: connection.onCodeAction(createHandler<(CodeAction | Command)[], CodeActionParams>([], []));
+
+connection.onCodeAction(
+    createHandler<(CodeAction | Command)[], CodeActionParams>([
+        new ExtractAttrHandler()
+    ], [])
+);
 
 // Start listening.
 documents.listen(connection);

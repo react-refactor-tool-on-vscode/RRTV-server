@@ -32,7 +32,15 @@ import * as jscodeshift from 'jscodeshift';
 
 const transform = (file: jscodeshift.FileInfo, api: jscodeshift.API, options: jscodeshift.Options) => {
     const j = api.jscodeshift;
-    const root = j(file.source);
+    let root;
+    try {
+        root = j(file.source);
+    } catch (error) {
+        return {
+            newText: undefined,
+            newRange: undefined
+        }
+    }
     let count = 0
     let _handleType = new handleType()
     root.find(j.ArrowFunctionExpression)
@@ -142,6 +150,7 @@ export const checkAttributeExtract = (text: string, index: number) => {
             index
         }
     )
+    return output;
 
     // console.log(output)
 }
