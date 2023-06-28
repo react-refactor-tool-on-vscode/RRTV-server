@@ -40,14 +40,17 @@ export class ExtractAttrHandler extends ContinuousOutputHandler<(Command | CodeA
                 character: output.newRange.end.column
             }
         }
-        const change = new WorkspaceChange();
-        const a = change.getTextEditChange(document);
-        a.replace(newRange, output.newText);
+
         const codeAction:CodeAction = {
             title: "Extract attribute out of return",
             kind: CodeActionKind.RefactorRewrite,
             data: uri,
-            edit: change.edit
+            command: Command.create(
+                "extract-attribute.0",
+                "extract-attribute.0",
+                output.newText,
+                newRange,
+            )
         }
         return [...(prevOutput ?? []), codeAction]
     }

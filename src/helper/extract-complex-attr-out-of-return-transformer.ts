@@ -68,9 +68,9 @@ const transform = (file: jscodeshift.FileInfo, api: jscodeshift.API, options: js
 function handler(j: jscodeshift.JSCodeshift, path: any, count: number, ...rest: any[]) {
     const jsxAttributes = j(path).closest(j.JSXAttribute)
     if (!jsxAttributes.length) return
-    const functionName = "NewFunction" + count
+    const functionName = "${1:NewFunction}"
     const newFunction = j.functionDeclaration(
-        j.identifier("NewFunction" + count),
+        j.identifier(functionName),
         path.node.params,
         j.blockStatement(path.node.body.body)
     );

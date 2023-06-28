@@ -27,7 +27,9 @@ connection.onInitialize((params: InitializeParams) => {
             codeActionProvider: true,
             executeCommandProvider: {
                 // TODO: commands be clarified and filled.
-                commands: [],
+                commands: [
+                    "extract-attribute.0"
+                ],
             },
         },
     };
