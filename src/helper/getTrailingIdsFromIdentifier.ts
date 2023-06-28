@@ -9,9 +9,9 @@ export function getTrailingIdsFromIdentifier(
     range: Range,
     identifierName: string
 ): { ids: Array<string[]>; memberExprLocs: t.SourceLocation[] } {
-    let trailingIds: Array<string[]> = new Array<string[]>();
-    let locs: Array<t.SourceLocation> = new Array<t.SourceLocation>();
-    let isRangeValid: boolean = false;
+    const trailingIds: Array<string[]> = new Array<string[]>();
+    const locs: Array<t.SourceLocation> = new Array<t.SourceLocation>();
+    let isRangeValid = false;
 
     const findAllTrailing: TraverseOptions<t.Node> = {
         Identifier(path) {
@@ -20,7 +20,7 @@ export function getTrailingIdsFromIdentifier(
                 path.node.name == identifierName
             ) {
                 trailingIds.push([]);
-                let index: number = trailingIds.length - 1;
+                const index: number = trailingIds.length - 1;
                 let currentPath = path as NodePath<t.Node>;
                 while (t.isMemberExpression(currentPath.parent)) {
                     if (
