@@ -98,7 +98,7 @@ it("functionTypeParam test", () => {
 });
 
 it("path between parent and array(container)", () => {
-    let result: boolean = false;
+    let result = false;
     const code = "function Test ([a,b]) {return a;}";
     const ast = parse(code);
     traverse(ast, {
