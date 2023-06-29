@@ -45,7 +45,7 @@ class StateLiftingCodeActionHandler extends ContinuousOutputHandler<
                     )
                 ),
             ];
-        } else return [];
+        } else return [...prevOutput];
     }
 }
 
