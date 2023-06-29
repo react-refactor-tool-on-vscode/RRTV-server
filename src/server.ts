@@ -25,7 +25,7 @@ import { AttrEditHandler, AttrEditExecuteCommandHandler} from "./handler/attribu
 
 import {ExtractAttrHandler, ExtractExprHandler} from './handler/ExtractAttrHandler'
 import { StateLiftingCodeActionHandler, StateLiftingExecuteCommandHandler } from "./handler/stateLifting";
-import { HookParamDiagHandler } from "./handler/HookParamDiagHandler";
+import { HookParamDiagHandler, HookParamFixHandler} from "./handler/HookParamDiagHandler";
 
 export const connection = createConnection(ProposedFeatures.all);
 
@@ -71,6 +71,7 @@ connection.onCodeAction(
             new ExtractAttrHandler(),
             new ExtractExprHandler(),
             new StateLiftingCodeActionHandler(),
+            new HookParamFixHandler(),
         ],
         []
     )
