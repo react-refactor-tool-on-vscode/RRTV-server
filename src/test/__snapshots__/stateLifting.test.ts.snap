@@ -57,6 +57,38 @@ exports[`get external test edit without external refs 1`] = `
 ]
 `;
 
+exports[`get external text edit with external refs to existed parent component 1`] = `
+[
+  {
+    "newText": "const state;",
+    "range": {
+      "end": {
+        "character": 16,
+        "line": 9,
+      },
+      "start": {
+        "character": 16,
+        "line": 9,
+      },
+    },
+  },
+  {
+    "newText": "
+state={state}",
+    "range": {
+      "end": {
+        "character": 42,
+        "line": 9,
+      },
+      "start": {
+        "character": 42,
+        "line": 9,
+      },
+    },
+  },
+]
+`;
+
 exports[`get internal test edit for single object pattern 1`] = `
 [
   {

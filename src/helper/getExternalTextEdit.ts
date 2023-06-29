@@ -3,8 +3,13 @@ import * as t from "@babel/types";
 import traverse from "@babel/traverse";
 import { findFunctionDeclarationOfRange } from "./findFunctionDeclarationOfRange";
 import { isHookCallExpression } from "./isHookCallExpression";
-import { locEndToPosition, locToRange } from "./locToRange";
+import {
+    locEndToPosition,
+    locStartAfterToPosition,
+    locToRange,
+} from "./locToRange";
 import generate from "@babel/generator";
+import * as _ from "lodash";
 
 export function getExternalTextEdit(
     isIntoNewComponent: boolean,
@@ -14,39 +19,36 @@ export function getExternalTextEdit(
     newId?: string
 ): TextEdit[] {
     const result: TextEdit[] = [];
+    let callExpressionNode: t.CallExpression;
+    const liftedComponent = findFunctionDeclarationOfRange(range, ast);
+    traverse(ast, {
+        CallExpression(path) {
+            if (isHookCallExpression(range, path)) {
+                callExpressionNode = path.node;
+            }
+        },
+    });
+    const newStateNode = t.variableDeclaration("const", [
+        t.variableDeclarator(t.identifier("state"), callExpressionNode),
+    ]);
+    const newStateAttr = t.jsxAttribute(
+        t.jsxIdentifier("state"),
+        t.jsxExpressionContainer(t.identifier("state"))
+    );
     if (isIntoNewComponent) {
         // Create new component
-        let callExpressionNode: t.CallExpression;
-        const liftedComponent = findFunctionDeclarationOfRange(range, ast);
-        traverse(ast, {
-            CallExpression(path) {
-                if (isHookCallExpression(range, path)) {
-                    callExpressionNode = path.node;
-                }
-            },
-        });
         const newComponentNode = t.functionDeclaration(
             t.identifier(newId!),
             [t.identifier("props")],
             t.blockStatement([
-                t.variableDeclaration("const", [
-                    t.variableDeclarator(
-                        t.identifier("state"),
-                        callExpressionNode
-                    ),
-                ]),
+                newStateNode,
                 t.returnStatement(
                     t.jsxElement(
                         t.jsxOpeningElement(
                             t.jsxIdentifier(liftedComponent.node.id.name),
                             [
                                 t.jsxSpreadAttribute(t.identifier("props")),
-                                t.jsxAttribute(
-                                    t.jsxIdentifier("state"),
-                                    t.jsxExpressionContainer(
-                                        t.identifier("state")
-                                    )
-                                ),
+                                newStateAttr,
                             ],
                             true
                         ),
@@ -69,7 +71,33 @@ export function getExternalTextEdit(
             });
         }
     } else {
-        
+        // Traverse parent component: add state and modify jsx.
+        for (let [key, value] of refs) {
+            traverse(ast, {
+                enter(path) {
+                    if (
+                        t.isFunctionDeclaration(path.node) &&
+                        _.isEqual(key, path.node.id.loc)
+                    ) {
+                        const blockStartLoc = path.node.body.loc;
+                        result.push(
+                            TextEdit.insert(
+                                locStartAfterToPosition(blockStartLoc),
+                                generate(newStateNode).code
+                            )
+                        );
+                    }
+                },
+            });
+            value.forEach((jsxIdentifierLoc) => {
+                result.push(
+                    TextEdit.insert(
+                        locEndToPosition(jsxIdentifierLoc),
+                        "\n" + generate(newStateAttr).code + "\n"
+                    )
+                );
+            });
+        }
     }
     return result;
 }
