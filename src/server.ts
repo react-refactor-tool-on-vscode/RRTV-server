@@ -7,6 +7,7 @@ import {
     InitializeParams,
     InitializeResult,
     ProposedFeatures,
+    TextDocumentChangeEvent,
     TextDocuments,
     TextDocumentSyncKind,
 } from "vscode-languageserver/node";
@@ -24,6 +25,7 @@ import { AttrEditHandler, AttrEditExecuteCommandHandler} from "./handler/attribu
 
 import {ExtractAttrHandler, ExtractExprHandler} from './handler/ExtractAttrHandler'
 import { StateLiftingCodeActionHandler, StateLiftingExecuteCommandHandler } from "./handler/stateLifting";
+import { HookParamDiagHandler } from "./handler/HookParamDiagHandler";
 
 export const connection = createConnection(ProposedFeatures.all);
 
@@ -51,6 +53,15 @@ connection.onInitialize((params: InitializeParams) => {
 
     return result;
 });
+
+documents.onDidChangeContent(
+    createHandler<void, TextDocumentChangeEvent<TextDocument>>(
+        [
+            new HookParamDiagHandler()
+        ],
+        null
+    )
+)
 
 connection.onCodeAction(
     createHandler<(Command | CodeAction)[], CodeActionParams>(
