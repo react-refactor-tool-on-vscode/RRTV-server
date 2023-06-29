@@ -1,5 +1,52 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`get all text edits 1`] = `
+[
+  {
+    "newText": "props.state",
+    "range": {
+      "end": {
+        "character": 45,
+        "line": 3,
+      },
+      "start": {
+        "character": 34,
+        "line": 3,
+      },
+    },
+  },
+  {
+    "newText": "
+const state = useState(0);",
+    "range": {
+      "end": {
+        "character": 25,
+        "line": 13,
+      },
+      "start": {
+        "character": 25,
+        "line": 13,
+      },
+    },
+  },
+  {
+    "newText": "
+state={state}
+",
+    "range": {
+      "end": {
+        "character": 20,
+        "line": 14,
+      },
+      "start": {
+        "character": 20,
+        "line": 14,
+      },
+    },
+  },
+]
+`;
+
 exports[`get external test edit with external refs 1`] = `
 [
   {
@@ -60,7 +107,8 @@ exports[`get external test edit without external refs 1`] = `
 exports[`get external text edit with external refs to existed parent component 1`] = `
 [
   {
-    "newText": "const state;",
+    "newText": "
+const state;",
     "range": {
       "end": {
         "character": 16,
@@ -74,7 +122,8 @@ exports[`get external text edit with external refs to existed parent component 1
   },
   {
     "newText": "
-state={state}",
+state={state}
+",
     "range": {
       "end": {
         "character": 42,
@@ -83,6 +132,40 @@ state={state}",
       "start": {
         "character": 42,
         "line": 9,
+      },
+    },
+  },
+]
+`;
+
+exports[`get external text edit with external refs to existed parent component 2 1`] = `
+[
+  {
+    "newText": "
+const state = useState(0);",
+    "range": {
+      "end": {
+        "character": 25,
+        "line": 13,
+      },
+      "start": {
+        "character": 25,
+        "line": 13,
+      },
+    },
+  },
+  {
+    "newText": "
+state={state}
+",
+    "range": {
+      "end": {
+        "character": 20,
+        "line": 14,
+      },
+      "start": {
+        "character": 20,
+        "line": 14,
       },
     },
   },
