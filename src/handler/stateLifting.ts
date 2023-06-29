@@ -31,7 +31,7 @@ class StateLiftingCodeActionHandler extends ContinuousOutputHandler<
                         commandNameSent,
                         request.textDocument.uri,
                         request.range,
-                        findAllParentComponentReferences(code, request.range),
+                        Array.from(findAllParentComponentReferences(code, request.range)),
                         checkParamIsSingleIdentifier(code, request.range)
                     )
                 ),
@@ -55,7 +55,7 @@ class StateLiftingExecuteCommandHandler extends BaseHandler<
                 range,
                 isParamSingleId as boolean,
                 (type as string) == "1",
-                refs,
+                new Map(refs),
                 newId
             );
             // Apply the edits.
