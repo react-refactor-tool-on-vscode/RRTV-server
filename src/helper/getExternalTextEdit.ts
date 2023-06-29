@@ -74,10 +74,12 @@ export function getExternalTextEdit(
         // Traverse parent component: add state and modify jsx.
         for (const [key, value] of refs) {
             traverse(ast, {
-                enter(path) {
+                FunctionDeclaration(path) {
                     if (
-                        t.isFunctionDeclaration(path.node) &&
-                        _.isEqual(key, path.node.id.loc)
+                        key.start.line == path.node.id.loc.start.line &&
+                        key.start.column == path.node.id.loc.start.column &&
+                        key.end.line == path.node.id.loc.end.line &&
+                        key.end.column == path.node.id.loc.end.column
                     ) {
                         const blockStartLoc = path.node.body.loc;
                         result.push(

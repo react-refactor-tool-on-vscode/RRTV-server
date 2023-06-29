@@ -6,6 +6,7 @@ import parseToAst from "../helper/ParseToAst";
 import { getInternalTextEdit } from "../helper/getInternalTextEdit";
 import { getExternalTextEdit } from "../helper/getExternalTextEdit";
 import { SourceLocation } from "@babel/types";
+import { getTextEditsForStateLifting } from "../helper/getTextEditsForStateLifting";
 
 test("check is code action enabled", () => {
     const usage1 = {
@@ -165,11 +166,14 @@ function App() {return <ComponentWithState item={{text="123"}} />}`;
     const ast = parseToAst(code);
     const range = Range.create(0, 41, 0, 41);
 
-    const map = findAllParentComponentReferences(
-        code,
-        range
+    const map = findAllParentComponentReferences(code, range);
+    const result = getExternalTextEdit(
+        true,
+        new Map(Array.from(map)),
+        ast,
+        range,
+        "StateContainer"
     );
-    const result = getExternalTextEdit(true, new Map(Array.from(map)), ast, range, "StateContainer");
 
     expect(result).toMatchSnapshot();
 });
@@ -188,11 +192,114 @@ function App() {return <ComponentWithState item={{text="123"}} />}`;
     const ast = parseToAst(code);
     const range = Range.create(0, 41, 0, 41);
 
-    const map = findAllParentComponentReferences(
-        code,
+    const map = findAllParentComponentReferences(code, range);
+    const result = getExternalTextEdit(
+        false,
+        new Map(Array.from(map)),
+        ast,
         range
     );
-    const result = getExternalTextEdit(false, new Map(Array.from(map)), ast, range);
 
     expect(result).toMatchSnapshot();
+});
+
+test("get external text edit with external refs to existed parent component 2", () => {
+    const code = `const { useState } = require("react")
+
+    function Test(props) {
+        const [count, setCount] = useState(0);
+        return (
+            <>
+            <span>{props.text}</span>
+            <img src={props.src} alt="Something" />
+            <button onClick={() => setCount(count + 1)}>Clicked {count} times</button>
+            </>
+        )
+    }
+    
+    function App(props) {
+        return <Test text={"Some text"} src={"https://sample.com/s?q=aydg2"} />
+    }
+    
+    export default App;`;
+    const ast = parseToAst(code);
+    const range = Range.create(3, 38, 3, 39);
+
+    const map = findAllParentComponentReferences(code, range);
+    const result = getExternalTextEdit(
+        false,
+        new Map(Array.from(map)),
+        ast,
+        range
+    );
+
+    expect(result).toMatchSnapshot();
+});
+
+test("get all text edits", () => {
+    const code = `const { useState } = require("react")
+
+    function Test(props) {
+        const [count, setCount] = useState(0);
+        return (
+            <>
+            <span>{props.text}</span>
+            <img src={props.src} alt="Something" />
+            <button onClick={() => setCount(count + 1)}>Clicked {count} times</button>
+            </>
+        )
+    }
+    
+    function App(props) {
+        return <Test text={"Some text"} src={"https://sample.com/s?q=aydg2"} />
+    }
+    
+    export default App;`;
+    const ast = parseToAst(code);
+    const range = Range.create(3, 38, 3, 39);
+    const result = getTextEditsForStateLifting(
+        ast,
+        range,
+        true,
+        false,
+        findAllParentComponentReferences(code, range)
+    );
+
+    expect(result).toMatchSnapshot();
+});
+
+test("get all text edits auto", () => {
+    const code = `const { useState } = require("react")
+
+    function Test(props) {
+        const [count, setCount] = useState(0);
+        return (
+            <>
+            <span>{props.text}</span>
+            <img src={props.src} alt="Something" />
+            <button onClick={() => setCount(count + 1)}>Clicked {count} times</button>
+            </>
+        )
+    }
+    
+    function App(props) {
+        return <Test text={"Some text"} src={"https://sample.com/s?q=aydg2"} />
+    }
+    
+    export default App;`;
+    const ast = parseToAst(code);
+    const range = Range.create(3, 38, 3, 39);
+
+    const result = getTextEditsForStateLifting(
+        ast,
+        range,
+        checkParamIsSingleIdentifier(code, range),
+        false,
+        findAllParentComponentReferences(code, range),
+        undefined
+    )
+    expect(result).toMatchSnapshot();
+
+    const refs = Array.from(findAllParentComponentReferences(code, range));
+    expect(refs).toMatchSnapshot();
 })
