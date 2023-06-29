@@ -77,7 +77,8 @@ export function getExternalTextEdit(
                 enter(path) {
                     if (
                         t.isFunctionDeclaration(path.node) &&
-                        _.isEqual(key, path.node.id.loc)
+                        _.isEqual(key.start, path.node.id.loc.start) &&
+                        _.isEqual(key.end, path.node.id.loc.end)
                     ) {
                         const blockStartLoc = path.node.body.loc;
                         result.push(

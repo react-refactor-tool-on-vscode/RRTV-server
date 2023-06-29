@@ -267,3 +267,39 @@ test("get all text edits", () => {
 
     expect(result).toMatchSnapshot();
 });
+
+test("get all text edits auto", () => {
+    const code = `const { useState } = require("react")
+
+    function Test(props) {
+        const [count, setCount] = useState(0);
+        return (
+            <>
+            <span>{props.text}</span>
+            <img src={props.src} alt="Something" />
+            <button onClick={() => setCount(count + 1)}>Clicked {count} times</button>
+            </>
+        )
+    }
+    
+    function App(props) {
+        return <Test text={"Some text"} src={"https://sample.com/s?q=aydg2"} />
+    }
+    
+    export default App;`;
+    const ast = parseToAst(code);
+    const range = Range.create(3, 38, 3, 39);
+
+    const result = getTextEditsForStateLifting(
+        ast,
+        range,
+        checkParamIsSingleIdentifier(code, range),
+        false,
+        findAllParentComponentReferences(code, range),
+        undefined
+    )
+    expect(result).toMatchSnapshot();
+
+    const refs = Array.from(findAllParentComponentReferences(code, range));
+    expect(refs).toMatchSnapshot();
+})

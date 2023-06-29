@@ -47,6 +47,90 @@ state={state}
 ]
 `;
 
+exports[`get all text edits auto 1`] = `
+[
+  {
+    "newText": "props.state",
+    "range": {
+      "end": {
+        "character": 45,
+        "line": 3,
+      },
+      "start": {
+        "character": 34,
+        "line": 3,
+      },
+    },
+  },
+  {
+    "newText": "
+const state = useState(0);",
+    "range": {
+      "end": {
+        "character": 25,
+        "line": 13,
+      },
+      "start": {
+        "character": 25,
+        "line": 13,
+      },
+    },
+  },
+  {
+    "newText": "
+state={state}
+",
+    "range": {
+      "end": {
+        "character": 20,
+        "line": 14,
+      },
+      "start": {
+        "character": 20,
+        "line": 14,
+      },
+    },
+  },
+]
+`;
+
+exports[`get all text edits auto 2`] = `
+[
+  [
+    SourceLocation {
+      "end": Position {
+        "column": 16,
+        "index": 375,
+        "line": 14,
+      },
+      "filename": undefined,
+      "identifierName": "App",
+      "start": Position {
+        "column": 13,
+        "index": 372,
+        "line": 14,
+      },
+    },
+    [
+      SourceLocation {
+        "end": Position {
+          "column": 20,
+          "index": 405,
+          "line": 15,
+        },
+        "filename": undefined,
+        "identifierName": undefined,
+        "start": Position {
+          "column": 16,
+          "index": 401,
+          "line": 15,
+        },
+      },
+    ],
+  ],
+]
+`;
+
 exports[`get external test edit with external refs 1`] = `
 [
   {
