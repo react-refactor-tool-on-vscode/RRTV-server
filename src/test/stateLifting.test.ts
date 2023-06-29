@@ -169,7 +169,7 @@ function App() {return <ComponentWithState item={{text="123"}} />}`;
         code,
         range
     );
-    const result = getExternalTextEdit(true, map, ast, range, "StateContainer");
+    const result = getExternalTextEdit(true, new Map(Array.from(map)), ast, range, "StateContainer");
 
     expect(result).toMatchSnapshot();
 });
