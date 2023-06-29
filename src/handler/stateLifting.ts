@@ -63,4 +63,4 @@ class StateLiftingExecuteCommandHandler extends BaseHandler<
     }
 }
 
-export { StateLiftingCodeActionHandler };
+export { StateLiftingCodeActionHandler, StateLiftingExecuteCommandHandler };
