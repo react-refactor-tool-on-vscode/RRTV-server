@@ -40,15 +40,19 @@ export class HookParamDiagHandler extends BaseHandler<void, TextDocumentChangeEv
         while((match = hookPattern.exec(text)) !== null && checks < PromblemLimit) {
             const range = Range.create(document.positionAt(match.index),  document.positionAt(match.index))
             if(match[1]) {
-                const pattern = getFuncPatternParam(text, range);
+                const [pattern, paramRange] = getFuncPatternParam(text, range);
                 if(match[1] == pattern.trim() && match[1] != 'init') {
                     checks ++;
+                    const argsRange =  Range.create(
+                        document.positionAt(match.index + match[0].trim().length - match[1].length - 1),  
+                        document.positionAt(match.index + match[0].trim().length - 1)
+                    );
                     const diagnostic = Diagnostic.create(
-                        Range.create(document.positionAt(match.index),  document.positionAt(match.index + match[0].length)),
+                        paramRange,
                         "Hook parameter should be named 'init'",
                         DiagnosticSeverity.Warning,
                     );
-                    diagnostic.data = ['wow!']
+                    diagnostic.data = [paramRange, argsRange];
                     diagnostics.push(diagnostic);
                 }
             }
@@ -75,7 +79,8 @@ function generateCodeAction(param:CodeActionParams): CodeAction {
     const data = param.context.diagnostics[0].data ?? [];
     const change = new WorkspaceChange();
     const a = change.getTextEditChange(param.textDocument.uri);
-    a.replace(param.context.diagnostics[0].range, data[0]);
+    a.replace(data[0], 'init');
+    a.replace(data[1], 'init');
     const codeAction = CodeAction.create(
         "Fix Hook Parameter",
         change.edit,
