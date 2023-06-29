@@ -74,9 +74,8 @@ export function getExternalTextEdit(
         // Traverse parent component: add state and modify jsx.
         for (const [key, value] of refs) {
             traverse(ast, {
-                enter(path) {
+                FunctionDeclaration(path) {
                     if (
-                        t.isFunctionDeclaration(path.node) &&
                         _.isEqual(key.start, path.node.id.loc.start) &&
                         _.isEqual(key.end, path.node.id.loc.end)
                     ) {
