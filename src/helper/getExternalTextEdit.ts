@@ -83,7 +83,7 @@ export function getExternalTextEdit(
                         result.push(
                             TextEdit.insert(
                                 locStartAfterToPosition(blockStartLoc),
-                                generate(newStateNode).code
+                                "\n" + generate(newStateNode).code
                             )
                         );
                     }
