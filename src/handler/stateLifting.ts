@@ -9,7 +9,8 @@ import { getTextEditsForStateLifting } from "../helper/getTextEditsForStateLifti
 import parseToAst from "../helper/ParseToAst";
 import { checkParamIsSingleIdentifier } from "../helper/checkParamIsSingleIdentifier";
 
-const commandName = "rrtv.stateLifting";
+const commandNameSent = "rrtv.stateLifting.0";
+const commandNameReceived = "rrtv.stateLifting.1"
 
 class StateLiftingCodeActionHandler extends ContinuousOutputHandler<
     (CodeAction | Command)[],
@@ -27,7 +28,7 @@ class StateLiftingCodeActionHandler extends ContinuousOutputHandler<
                     "State Lifting",
                     Command.create(
                         "State Lifting",
-                        commandName,
+                        commandNameSent,
                         request.textDocument.uri,
                         request.range,
                         findAllParentComponentReferences(code, request.range),
@@ -46,7 +47,7 @@ class StateLiftingExecuteCommandHandler extends BaseHandler<
     ExecuteCommandParams
 > {
     handle(prevOutput: void, request: ExecuteCommandParams): void {
-        if (request.command == commandName) {
+        if (request.command == commandNameReceived) {
             const [uri, range, refs, isParamSingleId, type, newId] =
                 request.arguments;
             const edits = getTextEditsForStateLifting(

@@ -3,6 +3,7 @@ import parseToAst from "./ParseToAst";
 import traverse, { NodePath, TraverseOptions } from "@babel/traverse";
 import * as t from "@babel/types";
 import { IsRangeInLoc } from "./RangeLoc";
+import { findFunctionDeclarationOfRange } from "./findFunctionDeclarationOfRange";
 
 export function findAllParentComponentReferences(
     code: string,
@@ -12,21 +13,11 @@ export function findAllParentComponentReferences(
     const result = new Map<t.SourceLocation, t.SourceLocation[]>();
     let idsForFunction = [];
     let parentComponentLoc: t.SourceLocation;
-    let liftedName: string;
-    traverse(ast, {
-        enter(path) {
-            if (
-                t.isFunctionDeclaration(path.node) &&
-                IsRangeInLoc(range, path.node.loc)
-            ) {
-                liftedName = path.node.id.name;
-            }
-        },
-    });
+    const liftedFuncDecl = findFunctionDeclarationOfRange(range, ast);
 
     const findAllRefs: TraverseOptions = {
         JSXIdentifier(path) {
-            if (path.node.name == liftedName) {
+            if (path.node.name == liftedFuncDecl.node.id.name) {
                 idsForFunction.push(path.node.loc);
             }
         },

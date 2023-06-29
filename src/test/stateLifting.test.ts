@@ -3,7 +3,9 @@ import { isCodeActionEnabled } from "../helper/isCodeActionEnabled";
 import { findAllParentComponentReferences } from "../helper/findAllParentComponentReferences";
 import { checkParamIsSingleIdentifier } from "../helper/checkParamIsSingleIdentifier";
 import parseToAst from "../helper/ParseToAst";
-import { getInternalTextEdit } from "../helper/getTextEditsForStateLifting";
+import { getInternalTextEdit } from "../helper/getInternalTextEdit";
+import { getExternalTextEdit } from "../helper/getExternalTextEdit";
+import { SourceLocation } from "@babel/types";
 
 test("check is code action enabled", () => {
     const usage1 = {
@@ -110,6 +112,64 @@ test("get internal test edit for single object pattern", () => {
 
     const ast1 = parseToAst(code1);
 
-    const result1 = getInternalTextEdit(false, ast1, Range.create(1, 40, 1, 42));
+    const result1 = getInternalTextEdit(
+        false,
+        ast1,
+        Range.create(1, 40, 1, 42)
+    );
     expect(result1).toMatchSnapshot();
-})
+});
+
+test("get internal test edit for wrong param", () => {
+    const code1 = `function ComponentWithState([a,b]) {const [count,setCount] = useState(0);return <div>{a}</div>};}`;
+    const ast1 = parseToAst(code1);
+    const result1 = getInternalTextEdit(true, ast1, Range.create(0, 67, 0, 67));
+    expect(result1).toMatchSnapshot();
+});
+
+test("get external test edit without external refs", () => {
+    const code1 = `function ComponentWithState({item}) {
+        const [state1, setState1] = useState(0);
+    
+        return (
+            <div onclick={() => setState1(state1 + 1)}>
+                <div>{item.text}</div>
+                <span>{state1}</span>
+            </div>)
+    }`;
+
+    const ast1 = parseToAst(code1);
+
+    const result1 = getExternalTextEdit(
+        true,
+        new Map<SourceLocation, SourceLocation[]>(),
+        ast1,
+        Range.create(1, 40, 1, 40),
+        "StateContainer"
+    );
+
+    expect(result1).toMatchSnapshot();
+});
+
+test("get external test edit with external refs", () => {
+    const code = `function ComponentWithState({item}) {
+        const [state1, setState1] = useState(0);
+    
+        return (
+            <div onclick={() => setState1(state1 + 1)}>
+                <div>{item.text}</div>
+                <span>{state1}</span>
+            </div>)
+    }
+function App() {return <ComponentWithState item={{text="123"}} />}`;
+    const ast = parseToAst(code);
+    const range = Range.create(0, 41, 0, 41);
+
+    const map = findAllParentComponentReferences(
+        code,
+        range
+    );
+    const result = getExternalTextEdit(true, map, ast, range, "StateContainer");
+
+    expect(result).toMatchSnapshot();
+});
