@@ -1,5 +1,62 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`get external test edit with external refs 1`] = `
+[
+  {
+    "newText": "function StateContainer(props) {
+  const state;
+  return <ComponentWithState {...props} state={state} />;
+}
+",
+    "range": {
+      "end": {
+        "character": 5,
+        "line": 8,
+      },
+      "start": {
+        "character": 5,
+        "line": 8,
+      },
+    },
+  },
+  {
+    "newText": "StateContainer",
+    "range": {
+      "end": {
+        "character": 42,
+        "line": 9,
+      },
+      "start": {
+        "character": 24,
+        "line": 9,
+      },
+    },
+  },
+]
+`;
+
+exports[`get external test edit without external refs 1`] = `
+[
+  {
+    "newText": "function StateContainer(props) {
+  const state = useState(0);
+  return <ComponentWithState {...props} state={state} />;
+}
+",
+    "range": {
+      "end": {
+        "character": 5,
+        "line": 8,
+      },
+      "start": {
+        "character": 5,
+        "line": 8,
+      },
+    },
+  },
+]
+`;
+
 exports[`get internal test edit for single object pattern 1`] = `
 [
   {
@@ -51,3 +108,5 @@ exports[`get internal test edit for single param 1`] = `
   },
 ]
 `;
+
+exports[`get internal test edit for wrong param 1`] = `[]`;
