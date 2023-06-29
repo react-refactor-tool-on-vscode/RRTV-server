@@ -68,6 +68,8 @@ export function getExternalTextEdit(
                 result.push(TextEdit.replace(locToRange(idLoc), newId));
             });
         }
+    } else {
+        
     }
     return result;
 }
