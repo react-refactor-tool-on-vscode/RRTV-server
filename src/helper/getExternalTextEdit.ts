@@ -76,8 +76,10 @@ export function getExternalTextEdit(
             traverse(ast, {
                 FunctionDeclaration(path) {
                     if (
-                        _.isEqual(key.start, path.node.id.loc.start) &&
-                        _.isEqual(key.end, path.node.id.loc.end)
+                        key.start.line == path.node.id.loc.start.line &&
+                        key.start.column == path.node.id.loc.start.column &&
+                        key.end.line == path.node.id.loc.end.line &&
+                        key.end.column == path.node.id.loc.end.column
                     ) {
                         const blockStartLoc = path.node.body.loc;
                         result.push(
