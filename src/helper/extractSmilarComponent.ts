@@ -20,26 +20,31 @@ function checkJSXElement(jsxElements, j, root) {
     let childcount = 0
     let check = true
     /// 2 如果 div 少于两个，那没必要判断是否相似
+    const name = jsxElements.get(0).node.openingElement.name.name
     if (jsxElements.length < 2) {
-        console.log("exit at hasSameElements", jsxElements.get(0).node.openingElement.name.name)
+        console.log("exit at hasSameElements", name)
         //return root.toSource()
-        return false
+        return { check: false }
     }
+    /// 前端交互需要，记录 range 和 elementIndex
+    const range = {}
+    let elementIndex = 0
     jsxElements.forEach((path: any) => {
         total.push(new Set<any>())
+        range[name + '.' + elementIndex] = path.node.loc // 后续 split('.')
         const set = total[count]
         const jsxChildren = j(path).childElements()
         /// 4 如果没有儿子，也一定不相似
         if (!jsxChildren.length) {
             console.log("exit at hasChildren", jsxElements.get(0).node.openingElement.name.name)
-            return false
+            return { check: false }
             //return root.toSource()
         }
         childCountSet.add(jsxChildren.length)
         /// 3 如果子节点有不同数量，那不相似
         if (childCountSet.size > 1) {
             console.log("exit at childCountSet")
-            return false
+            return { check: false }
             //return root.toSource()
         }
         jsxChildren.forEach((path) => {
@@ -55,11 +60,10 @@ function checkJSXElement(jsxElements, j, root) {
     })
     for (let i = 0; i < total.length - 2; ++i) {
         if (isSameSet(total[i], total[i + 1]))
-            check = false
+            return { check: false }
     }
     console.log(check, "check", jsxElements.get(0).node.openingElement.name.name) //true
-    return check
-
+    return { check, range }
 }
 
 function constructJSXElement(attrName, attrValue, ...rest) {
@@ -102,20 +106,21 @@ function check(j, root) {
     })
     /// 添加诊断
     let res = {}
+    let range = {}
     for (let key in classify) {
         const checkResult = checkJSXElement(j(classify[key]), j, root)
-        if (checkResult) {
+        if (checkResult.check) {
             res["diag"] = true
             res[key] = classify[key]
+            range = checkResult.range ?? {}
         }
     }
-    return res
+    return { result: res, range: range }
 }
 
-const modifier = (j, divElements) => {
+const modifier = (j, divElements, elementIndex) => {
     //const divElements = root.findJSXElements("div");
     /// after filter by index   // const elementIndex = filterIndex()
-    const elementIndex = 0
     const divElementPath = divElements.paths()[elementIndex];
     /// set attributes
     const children = j(divElementPath).childElements();
@@ -191,26 +196,17 @@ const modifier = (j, divElements) => {
     return res
 } */
 
-function transformer(file, api) {
-    const j = api.jscodeshift;
-    const root = j(file.source);
-
-    const res = check(j, root)
-    const diag = res["diag"]
-    if (!diag) {
-        console.log("条件不满足")
-        return false
-    }
-    const name = 'hello'
-    const elements = j(res[name])
-    console.log(elements)
-    modifier(j, elements)
+export function transformer(root, elements, elementIndex) {
+    modifier(j, elements, elementIndex)
     return root.toSource();
 }
 
 const text = `const TestSim = () => {
   return <>
-
+	<hello>
+		<button id="1" me="2"></button>
+		<button you="3" type="4"></button>
+	</hello>
 	<div>
 		<button id="1" me="2"></button>
 		<button you="3" type="4"></button>
@@ -221,7 +217,10 @@ const text = `const TestSim = () => {
 const TestSim2 = () => {
   return <>
 	<code></code>
-
+	<div>
+		<button id="1" me="2"></button>
+		<button you="3" type="4"></button>
+	</div>
 	<hello>
 		<button id="1" me="2"></button>
 		<button you="3" type="4"></button>
@@ -233,10 +232,45 @@ const api = {
     jscodeshift: j
 }
 
-const interactor = (text: string) => {
+/// 诊断全文，进行一定的缓存
+export const checkIfDiag = (text: string) => {
     const file = { source: text }
-    const res = transformer(file, api)
-    console.log(res)
+    const root = j(file.source)
+    const result = check(j, root)
+    const diag = result["diag"]
+    if (!diag) {
+        console.log("组件相似条件不满足")
+        return { diag: false }
+    }
+    return { diag: true, cache: {...result, root} }
 }
 
-interactor(text)
+/// elements: cache.result[name]
+/// elementIndex: key in cache.range, then split by '.', take [1]
+/// root: cache.root
+
+/*  步骤
+... 首先诊断
+const res = checkIfDiag(text)
+if (!res.diag) 无组件相似
+// 有组件相似
+const range: any[] = []
+for (let key in res.cache.range) {
+    range.push(res.cache.range[key])
+}
+... 然后分发 range 去诊断
+
+用户触发 codeAction 之后，从 res.cache.range 获得必要的数据用来 transform
+假设 codeAction 能返回 传过去 的range
+for (let key in res.cache.range) {
+    if (res.cache.range[key] === 传回来的range) {
+        const tmp = key.split(".")
+        const elements = cache.result[tmp[0]]
+        const elementIndex = tmp[1]
+
+        const newText = transformer(res.cache.root, elements, elementIndex)
+        ... 全文替换
+    }
+}
+
+*/
