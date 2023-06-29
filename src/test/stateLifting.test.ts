@@ -173,3 +173,26 @@ function App() {return <ComponentWithState item={{text="123"}} />}`;
 
     expect(result).toMatchSnapshot();
 });
+
+test("get external text edit with external refs to existed parent component", () => {
+    const code = `function ComponentWithState({item}) {
+        const [state1, setState1] = useState(0);
+    
+        return (
+            <div onclick={() => setState1(state1 + 1)}>
+                <div>{item.text}</div>
+                <span>{state1}</span>
+            </div>)
+    }
+function App() {return <ComponentWithState item={{text="123"}} />}`;
+    const ast = parseToAst(code);
+    const range = Range.create(0, 41, 0, 41);
+
+    const map = findAllParentComponentReferences(
+        code,
+        range
+    );
+    const result = getExternalTextEdit(false, new Map(Array.from(map)), ast, range);
+
+    expect(result).toMatchSnapshot();
+})
