@@ -1,32 +1,36 @@
 export function addTabStop(text: string, option: number): string | undefined {
     if (!hasJSXCode(text)) return;
     let modifiedCode: string = text;
-    const regex = /<(\w+)((?:\s+\w+(?:\s*=\s*(?:".*?"|'.*?'|[\^'">\s]+))?)+\s*|\s*)>/g;
+    const regex = /<(\w+)((?:\s+\w+(?:\s*=\s*(?:"(?:\\.|[^\\"])*"|'(?:\\.|[^\\'])*'|\{(?:\\.|[^\\}]|\n)*\}|[^'">\s]+))?)+\s*|\s*)(\/)?>/g;
     if (option === 1) {
-        modifiedCode = text.replace(regex, (match, tagName, attributes) => {
-            const attributeString = ' $1=$2';
-            return `<${tagName}${attributes}${attributeString}>`;
+        modifiedCode = text.replace(regex, (match, tagName, attributes, selfClosing) => {
+            const attributeString = ' ${1:key}=${2:"value"}';
+            const closingSlash = selfClosing ? '/' : '';
+            return `<${tagName}${attributes}${attributeString}${closingSlash}>`
         });
     } else if (option === 2) {
         let i = 2;
-        modifiedCode = text.replace(regex, (match, tagName, attributes) => {
-            const attributeString = ` $1=$${i}`;
+        modifiedCode = text.replace(regex, (match, tagName, attributes, selfClosing) => {
+            const attributeString = ` $\{1:key}:=$\{${i}:"value"}`;
             i++;
-            return `<${tagName}${attributes}${attributeString}>`;
+            const closingSlash = selfClosing ? '/' : '';
+            return `<${tagName}${attributes}${attributeString}${closingSlash}>`
         });
     } else if (option === 3) {
         let i = 2;
-        modifiedCode = text.replace(regex, (match, tagName, attributes) => {
-            const attributeString = ` $${i}=$1`;
+        modifiedCode = text.replace(regex, (match, tagName, attributes, selfClosing) => {
+            const attributeString = ` $\{${i}:key}:=$\{1:"value"}`;
             i++;
-            return `<${tagName}${attributes}${attributeString}>`;
+            const closingSlash = selfClosing ? '/' : '';
+            return `<${tagName}${attributes}${attributeString}${closingSlash}>`
         });
     } else {
         let i = 1;
-        modifiedCode = text.replace(regex, (match, tagName, attributes) => {
-            const attributeString = ` $${i}=$${i + 1}`;
+        modifiedCode = text.replace(regex, (match, tagName, attributes, selfClosing) => {
+            const attributeString = ` $\{${i}:key}:=$\{${i + 1}:"value"}`;
             i += 2;
-            return `<${tagName}${attributes}${attributeString}>`;
+            const closingSlash = selfClosing ? '/' : '';
+            return `<${tagName}${attributes}${attributeString}${closingSlash}>`
         });
     }
 
