@@ -23,6 +23,7 @@ import {
 import { AttrEditHandler, AttrEditExecuteCommandHandler} from "./handler/attributeEdit";
 
 import {ExtractAttrHandler, ExtractExprHandler} from './handler/ExtractAttrHandler'
+import { StateLiftingCodeActionHandler, StateLiftingExecuteCommandHandler } from "./handler/stateLifting";
 
 export const connection = createConnection(ProposedFeatures.all);
 
@@ -40,7 +41,9 @@ connection.onInitialize((params: InitializeParams) => {
                     "provide-attribute.0",
                     "provide-attribute.1",
                     "provide-attribute.2",
-                    "extract-attribute.0"
+                    "extract-attribute.0",
+                    "rrtv.stateLifting.0",
+                    "rrtv.stateLifting.1"
                 ],
             },
         },
@@ -55,7 +58,8 @@ connection.onCodeAction(
             new PropFlattenCodeActionHandler(),
             new AttrEditHandler(),
             new ExtractAttrHandler(),
-            new ExtractExprHandler()
+            new ExtractExprHandler(),
+            new StateLiftingCodeActionHandler(),
         ],
         []
     )
@@ -65,7 +69,8 @@ connection.onExecuteCommand(
     createHandler<void, ExecuteCommandParams>(
         [
             new PropFlattenExecuteCommandHandler(),
-            new AttrEditExecuteCommandHandler()
+            new AttrEditExecuteCommandHandler(),
+            new StateLiftingExecuteCommandHandler()
         ],
         null
     )
