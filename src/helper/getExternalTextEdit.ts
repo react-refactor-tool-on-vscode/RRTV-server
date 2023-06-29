@@ -65,14 +65,14 @@ export function getExternalTextEdit(
             )
         );
         // Traverse refs and change identifier
-        for (let value of refs.values()) {
+        for (const value of refs.values()) {
             value.forEach((idLoc) => {
                 result.push(TextEdit.replace(locToRange(idLoc), newId));
             });
         }
     } else {
         // Traverse parent component: add state and modify jsx.
-        for (let [key, value] of refs) {
+        for (const [key, value] of refs) {
             traverse(ast, {
                 enter(path) {
                     if (
