@@ -18,12 +18,11 @@ import {
 import { BaseHandler, ContinuousOutputHandler } from '../interface/Handler'
 import { connection, documents } from '../server'
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { getFuncPatternParam } from "../helper/getFuncPatternParam";
+import { getFuncPatternParam, HookResult, replaceIdentifier } from "../helper/getFuncPatternParam";
 
 const hookPattern = /use[A-Z][a-zA-Z]*\(([^)]+)\)/g;
 const initParamRegex = /init\s*[,)]/;
 const parameterRegex = /[^\s,]+/g;
-const PromblemLimit = 1000;
 
 export class HookParamDiagHandler extends ContinuousOutputHandler<Diagnostic[], TextDocumentChangeEvent<TextDocument>> {
     concreteHandle(prevOutput: Diagnostic[], request: TextDocumentChangeEvent<TextDocument>): Diagnostic[] {
@@ -33,25 +32,25 @@ export class HookParamDiagHandler extends ContinuousOutputHandler<Diagnostic[], 
             return prevOutput;
         }
         let match:RegExpExecArray | null;
-        let checks = 0;
         const diagnostics:Diagnostic[] = [];
-        while((match = hookPattern.exec(text)) !== null && checks < PromblemLimit) {
+        while((match = hookPattern.exec(text)) != null) {
             const range = Range.create(document.positionAt(match.index),  document.positionAt(match.index))
             if(match[1]) {
-                const [pattern, paramRange] = getFuncPatternParam(text, range);
-                if(match[1] == pattern.trim() && match[1].substring(0, 4) != 'init') {
-                    checks ++;
-                    const argsRange =  Range.create(
-                        document.positionAt(match.index + match[0].trim().length - match[1].length - 1),  
-                        document.positionAt(match.index + match[0].trim().length - 1)
-                    );
-                    const diagnostic = Diagnostic.create(
-                        paramRange,
-                        "Hook parameter should begin with 'init'",
-                        DiagnosticSeverity.Warning,
-                    );
-                    diagnostic.data = ['hook param diag', paramRange, argsRange, match[1]];
-                    diagnostics.push(diagnostic);
+                const results = getFuncPatternParam(text, range);
+                if(results.length == 0) return prevOutput;
+                for(const set of results) {     
+                    if(set.result.includes(match[1].trim()) && match[1].trim().substring(0, 4) != 'init') {
+                        const diagnostic = Diagnostic.create(
+                            set.paramRange,
+                            "Hook parameter should begin with 'init'",
+                            DiagnosticSeverity.Warning,
+                        );
+                        const oldCode = document.getText(set.funcRange);
+                        console.log("old code is " + oldCode)
+                        diagnostic.data = ['hook param diag', match[1], set.funcRange, oldCode];
+                        diagnostics.push(diagnostic);
+                    }
+                
                 }
             }
         }
@@ -76,10 +75,10 @@ function generateCodeAction(param:CodeActionParams): CodeAction {
     const data = param.context.diagnostics[0].data ?? [];
     if(data[0] != 'hook param diag') {return null;}
     const change = new WorkspaceChange();
-    const name:string = 'init' + data[3].substring(0, 1).toUpperCase() + data[3].substring(1, 4);
+    const name:string = 'init' + data[1].substring(0, 1).toUpperCase() + data[1].substring(1, 4);
+    const newCode = replaceIdentifier(data[3], data[1], name)
     const a = change.getTextEditChange(param.textDocument.uri);
-    a.replace(data[1], name);
-    a.replace(data[2], name);
+    a.replace(data[2], newCode);
     const codeAction = CodeAction.create(
         "Fix Hook Parameter",
         change.edit,
