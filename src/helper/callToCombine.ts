@@ -1,7 +1,14 @@
 import * as j from 'jscodeshift'
 import { locToRange } from './locToRange';
 export function transformer(text, index) {
-    const root = j(text);
+    let root;
+     try {
+       root =  j(text)
+    } catch (error) {
+        return {
+            check: false
+        }
+    };
 
     /// 找到函数声明
     const fd = root.find(j.FunctionDeclaration)
