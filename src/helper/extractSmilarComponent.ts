@@ -108,14 +108,14 @@ function check(j, root) {
     })
     /// 添加诊断
     let res = {}
-    let range = []
+    let range = {}
     for (let key in classify) {
         const checkResult = checkJSXElement(j(classify[key]), j, root)
         if (checkResult.check) {
             res["diag"] = true
             res[key] = classify[key]
             for (let key in checkResult.range) 
-                range.push(locToRange(checkResult.range[key]))
+                range[key] = locToRange(checkResult.range[key])
         }
     }
     return { result: res, range: range }
