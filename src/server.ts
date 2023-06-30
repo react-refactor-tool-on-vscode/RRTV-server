@@ -80,7 +80,7 @@ connection.onCodeAction(
             new AttrEditHandler(),
             new ExtractAttrHandler(),
             new ExtractExprHandler(),
-            new CallToCombineHandler(),
+            // new CallToCombineHandler(),
             new StateLiftingCodeActionHandler(),
             new HookParamFixHandler(),
             new SimilarComponentCAHandler(),
