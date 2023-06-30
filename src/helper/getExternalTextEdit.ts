@@ -10,6 +10,7 @@ import {
 } from "./locToRange";
 import generate from "@babel/generator";
 import * as _ from "lodash";
+import { IsEqualLoc } from "./LocComparison";
 
 export function getExternalTextEdit(
     isIntoNewComponent: boolean,
@@ -71,6 +72,18 @@ export function getExternalTextEdit(
             });
         }
     } else {
+        const isOpeningIdentifier: Array<t.SourceLocation> =
+            new Array<t.SourceLocation>();
+        traverse(ast, {
+            JSXOpeningElement(path) {
+                Array.from(refs).forEach((ref) => {
+                    ref[1].forEach((value) => {
+                        if (IsEqualLoc(path.node.name.loc, value))
+                            isOpeningIdentifier.push(path.node.name.loc);
+                    });
+                });
+            },
+        });
         // Traverse parent component: add state and modify jsx.
         for (const [key, value] of refs) {
             traverse(ast, {
@@ -92,12 +105,18 @@ export function getExternalTextEdit(
                 },
             });
             value.forEach((jsxIdentifierLoc) => {
-                result.push(
-                    TextEdit.insert(
-                        locEndToPosition(jsxIdentifierLoc),
-                        "\n" + generate(newStateAttr).code + "\n"
+                if (
+                    _.some(isOpeningIdentifier, (loc) =>
+                        IsEqualLoc(loc, jsxIdentifierLoc)
                     )
-                );
+                ) {
+                    result.push(
+                        TextEdit.insert(
+                            locEndToPosition(jsxIdentifierLoc),
+                            "\n" + generate(newStateAttr).code + "\n"
+                        )
+                    );
+                }
             });
         }
     }

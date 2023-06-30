@@ -303,3 +303,52 @@ test("get all text edits auto", () => {
     const refs = Array.from(findAllParentComponentReferences(code, range));
     expect(refs).toMatchSnapshot();
 })
+
+it("get internal edits for empty function", () => {
+    const code1 = `function ComponentWithState() {
+        const [state1, setState1] = useState(0);
+    
+        return (
+            <div onclick={() => setState1(state1 + 1)}>
+                <div>Hello</div>
+            </div>)
+    }`;
+
+    const ast1 = parseToAst(code1);
+
+    const result1 = getInternalTextEdit(false, ast1, Range.create(1, 42, 1, 42));
+    expect(result1).toMatchSnapshot();
+})
+
+it("get external edits for those with closing jsx element", () => {
+    const code = `const { useState } = require("react")
+
+    function Test(props) {
+        const [count, setCount] = useState(0);
+        return (
+            <>
+            <span>{props.text}</span>
+            <img src={props.src} alt="Something" />
+            <button onClick={() => setCount(count + 1)}>Clicked {count} times</button>
+            </>
+        )
+    }
+    
+    function App(props) {
+        return <Test text={"Some text"} src={"https://sample.com/s?q=aydg2"}></Test>
+    }
+    
+    export default App;`;
+    const ast = parseToAst(code);
+    const range = Range.create(3, 38, 3, 39);
+
+    const map = findAllParentComponentReferences(code, range);
+    const result = getExternalTextEdit(
+        false,
+        new Map(Array.from(map)),
+        ast,
+        range
+    );
+
+    expect(result).toMatchSnapshot();
+})

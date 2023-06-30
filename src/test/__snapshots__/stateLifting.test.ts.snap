@@ -131,6 +131,40 @@ exports[`get all text edits auto 2`] = `
 ]
 `;
 
+exports[`get external edits for those with closing jsx element 1`] = `
+[
+  {
+    "newText": "
+const state = useState(0);",
+    "range": {
+      "end": {
+        "character": 25,
+        "line": 13,
+      },
+      "start": {
+        "character": 25,
+        "line": 13,
+      },
+    },
+  },
+  {
+    "newText": "
+state={state}
+",
+    "range": {
+      "end": {
+        "character": 20,
+        "line": 14,
+      },
+      "start": {
+        "character": 20,
+        "line": 14,
+      },
+    },
+  },
+]
+`;
+
 exports[`get external test edit with external refs 1`] = `
 [
   {
@@ -250,6 +284,39 @@ state={state}
       "start": {
         "character": 20,
         "line": 14,
+      },
+    },
+  },
+]
+`;
+
+exports[`get internal edits for empty function 1`] = `
+[
+  {
+    "newText": "({
+  state: state
+})",
+    "range": {
+      "end": {
+        "character": 30,
+        "line": 0,
+      },
+      "start": {
+        "character": 27,
+        "line": 0,
+      },
+    },
+  },
+  {
+    "newText": "state",
+    "range": {
+      "end": {
+        "character": 47,
+        "line": 1,
+      },
+      "start": {
+        "character": 36,
+        "line": 1,
       },
     },
   },
