@@ -31,13 +31,20 @@ export class HookParamDiagHandler extends ContinuousOutputHandler<Diagnostic[], 
         if(!hookPattern.test(text)) {
             return prevOutput;
         }
-        let match:RegExpExecArray | null;
+        const diagnostics = diagnosticGenerator(text, document);
+        return [...prevOutput, ...diagnostics]
+    }
+}
+
+// generate diagnostics depend on document for hook param 
+function diagnosticGenerator(text:string, document:TextDocument):Diagnostic[] {
+    let match:RegExpExecArray | null;
         const diagnostics:Diagnostic[] = [];
         while((match = hookPattern.exec(text)) != null) {
             const range = Range.create(document.positionAt(match.index),  document.positionAt(match.index))
             if(match[1]) {
                 const results = getFuncPatternParam(text, range);
-                if(results.length == 0) return prevOutput;
+                if(results.length == 0) return [];
                 for(const set of results) {     
                     if(set.result.includes(match[1].trim()) && match[1].trim().substring(0, 4) != 'init') {
                         const diagnostic = Diagnostic.create(
@@ -54,8 +61,7 @@ export class HookParamDiagHandler extends ContinuousOutputHandler<Diagnostic[], 
                 }
             }
         }
-        return [...prevOutput, ...diagnostics]
-    }
+    return diagnostics;
 }
 
 export class HookParamFixHandler extends ContinuousOutputHandler< 
@@ -70,6 +76,7 @@ export class HookParamFixHandler extends ContinuousOutputHandler<
     }
 }
 
+// generate diagnostics depend on document for hook param 
 function generateCodeAction(param:CodeActionParams): CodeAction {
     if(param.context.diagnostics.length == 0) return null;
     const data = param.context.diagnostics[0].data ?? [];
