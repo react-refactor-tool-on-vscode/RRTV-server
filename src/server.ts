@@ -30,6 +30,7 @@ import { HookParamDiagHandler, HookParamFixHandler} from "./handler/HookParamDia
 import { SimilarComponentDiagHandler,  SimilarComponentCAHandler} from './handler/SimilarCompDiagHandler'
 import { SendDiagnosticsHandler } from "./handler/SendDiagnostic";
 import { PropsDrillingDiagnosticHandler } from './handler/propsDrilling'
+import { SetStateValueCallbackCodeActionHandler } from "./handler/setStateValueCallback";
 
 import { CallToCombineHandler } from './handler/CallToCombineHandler'
 
@@ -83,6 +84,7 @@ connection.onCodeAction(
             new StateLiftingCodeActionHandler(),
             new HookParamFixHandler(),
             new SimilarComponentCAHandler(),
+            new SetStateValueCallbackCodeActionHandler(),
         ],
         []
     )
