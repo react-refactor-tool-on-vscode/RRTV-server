@@ -1,3 +1,4 @@
+import { locToRange } from './locToRange';
 const j = require("jscodeshift")
 
 const isSameSet = (s1: Set<any>, s2: Set<any>) => {
@@ -32,6 +33,7 @@ function checkJSXElement(jsxElements, j, root) {
     jsxElements.forEach((path: any) => {
         total.push(new Set<any>())
         range[name + '.' + elementIndex] = path.node.loc // 后续 split('.')
+        elementIndex++
         const set = total[count]
         const jsxChildren = j(path).childElements()
         /// 4 如果没有儿子，也一定不相似
@@ -106,13 +108,14 @@ function check(j, root) {
     })
     /// 添加诊断
     let res = {}
-    let range = {}
+    let range = []
     for (let key in classify) {
         const checkResult = checkJSXElement(j(classify[key]), j, root)
         if (checkResult.check) {
             res["diag"] = true
             res[key] = classify[key]
-            range = checkResult.range ?? {}
+            for (let key in checkResult.range) 
+                range.push(locToRange(checkResult.range[key]))
         }
     }
     return { result: res, range: range }
@@ -237,7 +240,7 @@ export const checkIfDiag = (text: string) => {
     const file = { source: text }
     const root = j(file.source)
     const result = check(j, root)
-    const diag = result["diag"]
+    const diag = result.result["diag"]
     if (!diag) {
         console.log("组件相似条件不满足")
         return { diag: false }
@@ -274,3 +277,6 @@ for (let key in res.cache.range) {
 }
 
 */
+
+const res = checkIfDiag(text)
+console.log(res)
