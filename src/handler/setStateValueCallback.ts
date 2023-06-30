@@ -73,7 +73,7 @@ export class SetStateValueCallbackCodeActionHandler extends ContinuousOutputHand
                 }
             },
         });
-
+        if(codeAction == undefined) {return prevOutput;}
         return [...prevOutput, codeAction];
     }
 }

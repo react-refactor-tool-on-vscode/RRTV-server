@@ -67,7 +67,7 @@ function generateCodeAction(request:CodeActionParams): CodeAction {
     console.log(data);
     const res = checkIfDiag(data[1]);
     const elements = res.cache.result[data[2][0]]
-    const newText = transformer(res.cache.root, elements, data[2][1] as unknown as number);
+    const newText = transformer(res.cache.root, elements, data[2][1] as number);
     console.log(newText, 'newText')
     const change = new WorkspaceChange();
     const a = change.getTextEditChange(uri);
