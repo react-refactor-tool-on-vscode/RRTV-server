@@ -66,10 +66,11 @@ function generateCodeAction(request:CodeActionParams): CodeAction {
     const data = request.context.diagnostics[0].data ?? [];
     if(data[0] != 'extract similar component') {return null;}
     const uri = request.textDocument.uri;
-    const root = j(data[1]);
+    console.log(data);
     const res = checkIfDiag(data[1]);
     const elements = res.cache.result[data[2][0]]
-    const newText = transformer(root, elements, data[2][1]);
+    const newText = transformer(res.cache.root, elements, data[2][1] as unknown as number);
+    console.log(newText, 'newText')
     const change = new WorkspaceChange();
     const a = change.getTextEditChange(uri);
     a.replace(
