@@ -55,5 +55,6 @@ export class CallToCombineHandler extends ContinuousOutputHandler<
         } catch (error) {
             console.log(JSON.stringify(error));
         }
+        return [...(prevOutput ?? [])];
     }
 }
