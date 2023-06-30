@@ -24,6 +24,8 @@ import { AttrEditHandler, AttrEditExecuteCommandHandler} from "./handler/attribu
 
 import {ExtractAttrHandler, ExtractExprHandler} from './handler/ExtractAttrHandler'
 
+import { CallToCombineHandler } from './handler/CallToCombineHandler'
+
 export const connection = createConnection(ProposedFeatures.all);
 
 export const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
@@ -55,7 +57,8 @@ connection.onCodeAction(
             new PropFlattenCodeActionHandler(),
             new AttrEditHandler(),
             new ExtractAttrHandler(),
-            new ExtractExprHandler()
+            new ExtractExprHandler(),
+            new CallToCombineHandler(),
         ],
         []
     )

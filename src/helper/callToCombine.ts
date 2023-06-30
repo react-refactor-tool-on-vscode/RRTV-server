@@ -1,6 +1,6 @@
 import * as j from 'jscodeshift'
 import { locToRange } from './locToRange';
-export default function transformer(text, index) {
+export function transformer(text, index) {
     const root = j(text);
 
     /// 找到函数声明
