@@ -52,10 +52,8 @@ export class SimilarComponentCAHandler extends ContinuousOutputHandler<
     CodeActionParams
 > {
     protected concreteHandle(prevOutput: (CodeAction | Command)[], request: CodeActionParams): (CodeAction | Command)[] {
-        connection.window.showInformationMessage("enter")
         const codeAction = generateCodeAction(request);
         if (codeAction) {
-            connection.window.showInformationMessage("code action: " + JSON.stringify(codeAction))
             return [...prevOutput, codeAction];
         } else return prevOutput;
     }
