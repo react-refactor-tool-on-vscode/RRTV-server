@@ -36,6 +36,7 @@ class AttrEditExecuteCommandHandler extends BaseHandler<void, ExecuteCommandPara
             const textDocument = documents.get(request.arguments[0]);
             const range:Range = request.arguments[1];
             const option:number = request.arguments[2];
+            if(option > 4) {return;}
             const text = textDocument.getText(range);
             const modifiedCode = addTabStop(text, option);
             if (!modifiedCode) return;
