@@ -29,6 +29,7 @@ import { StateLiftingCodeActionHandler, StateLiftingExecuteCommandHandler } from
 import { HookParamDiagHandler, HookParamFixHandler} from "./handler/HookParamDiagHandler";
 import { SimilarComponentDiagHandler,  SimilarComponentCAHandler} from './handler/SimilarCompDiagHandler'
 import { SendDiagnosticsHandler } from "./handler/SendDiagnostic";
+import { PropsDrillingDiagnosticHandler } from './handler/propsDrilling'
 
 export const connection = createConnection(ProposedFeatures.all);
 
@@ -62,6 +63,7 @@ documents.onDidChangeContent(
         [
             new HookParamDiagHandler(),
             new SimilarComponentDiagHandler(),
+            new PropsDrillingDiagnosticHandler(),
             new SendDiagnosticsHandler(),
         ],
         []
