@@ -26,6 +26,7 @@ import { AttrEditHandler, AttrEditExecuteCommandHandler} from "./handler/attribu
 import {ExtractAttrHandler, ExtractExprHandler} from './handler/ExtractAttrHandler'
 import { StateLiftingCodeActionHandler, StateLiftingExecuteCommandHandler } from "./handler/stateLifting";
 import { HookParamDiagHandler, HookParamFixHandler} from "./handler/HookParamDiagHandler";
+import { SimilarComponentDiagHandler} from './handler/SimilarCompDiagHandler'
 
 export const connection = createConnection(ProposedFeatures.all);
 
@@ -57,7 +58,8 @@ connection.onInitialize((params: InitializeParams) => {
 documents.onDidChangeContent(
     createHandler<void, TextDocumentChangeEvent<TextDocument>>(
         [
-            new HookParamDiagHandler()
+            new HookParamDiagHandler(),
+            new SimilarComponentDiagHandler(),
         ],
         null
     )

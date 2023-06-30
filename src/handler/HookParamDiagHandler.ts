@@ -19,7 +19,6 @@ import { BaseHandler, ContinuousOutputHandler } from '../interface/Handler'
 import { connection, documents } from '../server'
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { getFuncPatternParam } from "../helper/getFuncPatternParam";
-import { range } from "lodash";
 
 const hookPattern = /use[A-Z][a-zA-Z]*\(([^)]+)\)/g;
 const initParamRegex = /init\s*[,)]/;
