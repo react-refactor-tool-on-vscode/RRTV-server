@@ -12,4 +12,13 @@ function IsRangeInLoc(range: Range, loc: t.SourceLocation): boolean {
     );
 }
 
-export { IsRangeInLoc };
+function IsRangeEqualToLoc(range: Range, loc: t.SourceLocation): boolean {
+    return (
+        (loc.start.line == range.start.line + 1 ||
+            loc.start.column == range.start.character) &&
+        (loc.end.line == range.end.line + 1 ||
+            loc.end.column == range.end.character)
+    );
+}
+
+export { IsRangeInLoc, IsRangeEqualToLoc };

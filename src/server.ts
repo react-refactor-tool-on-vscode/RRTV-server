@@ -3,10 +3,12 @@ import {
     CodeActionParams,
     Command,
     createConnection,
+    Diagnostic,
     ExecuteCommandParams,
     InitializeParams,
     InitializeResult,
     ProposedFeatures,
+    TextDocumentChangeEvent,
     TextDocuments,
     TextDocumentSyncKind,
 } from "vscode-languageserver/node";
@@ -23,6 +25,11 @@ import {
 import { AttrEditHandler, AttrEditExecuteCommandHandler} from "./handler/attributeEdit";
 
 import {ExtractAttrHandler, ExtractExprHandler} from './handler/ExtractAttrHandler'
+import { StateLiftingCodeActionHandler, StateLiftingExecuteCommandHandler } from "./handler/stateLifting";
+import { HookParamDiagHandler, HookParamFixHandler} from "./handler/HookParamDiagHandler";
+import { SimilarComponentDiagHandler,  SimilarComponentCAHandler} from './handler/SimilarCompDiagHandler'
+import { SendDiagnosticsHandler } from "./handler/SendDiagnostic";
+import { PropsDrillingDiagnosticHandler } from './handler/propsDrilling'
 
 import { CallToCombineHandler } from './handler/CallToCombineHandler'
 
@@ -42,7 +49,9 @@ connection.onInitialize((params: InitializeParams) => {
                     "provide-attribute.0",
                     "provide-attribute.1",
                     "provide-attribute.2",
-                    "extract-attribute.0"
+                    "extract-attribute.0",
+                    "rrtv.stateLifting.0",
+                    "rrtv.stateLifting.1"
                 ],
             },
         },
@@ -50,6 +59,18 @@ connection.onInitialize((params: InitializeParams) => {
 
     return result;
 });
+
+documents.onDidChangeContent(
+    createHandler<Diagnostic[], TextDocumentChangeEvent<TextDocument>>(
+        [
+            new HookParamDiagHandler(),
+            new SimilarComponentDiagHandler(),
+            new PropsDrillingDiagnosticHandler(),
+            new SendDiagnosticsHandler(),
+        ],
+        []
+    )
+)
 
 connection.onCodeAction(
     createHandler<(Command | CodeAction)[], CodeActionParams>(
@@ -59,6 +80,9 @@ connection.onCodeAction(
             new ExtractAttrHandler(),
             new ExtractExprHandler(),
             new CallToCombineHandler(),
+            new StateLiftingCodeActionHandler(),
+            new HookParamFixHandler(),
+            new SimilarComponentCAHandler(),
         ],
         []
     )
@@ -68,7 +92,8 @@ connection.onExecuteCommand(
     createHandler<void, ExecuteCommandParams>(
         [
             new PropFlattenExecuteCommandHandler(),
-            new AttrEditExecuteCommandHandler()
+            new AttrEditExecuteCommandHandler(),
+            new StateLiftingExecuteCommandHandler()
         ],
         null
     )
