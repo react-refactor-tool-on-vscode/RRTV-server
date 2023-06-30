@@ -19,20 +19,18 @@ import { BaseHandler, ContinuousOutputHandler } from '../interface/Handler'
 import { connection, documents } from '../server'
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { getFuncPatternParam } from "../helper/getFuncPatternParam";
-import { range } from "lodash";
 
 const hookPattern = /use[A-Z][a-zA-Z]*\(([^)]+)\)/g;
 const initParamRegex = /init\s*[,)]/;
 const parameterRegex = /[^\s,]+/g;
 const PromblemLimit = 1000;
 
-export class HookParamDiagHandler extends BaseHandler<void, TextDocumentChangeEvent<TextDocument>> {
-    handle(prevOutput: void, request: TextDocumentChangeEvent<TextDocument>): void {
+export class HookParamDiagHandler extends ContinuousOutputHandler<Diagnostic[], TextDocumentChangeEvent<TextDocument>> {
+    concreteHandle(prevOutput: Diagnostic[], request: TextDocumentChangeEvent<TextDocument>): Diagnostic[] {
         const document = request.document;
         const text = document.getText()
         if(!hookPattern.test(text)) {
-            this.nextHandler.handle(null, request);
-            return;
+            return prevOutput;
         }
         let match:RegExpExecArray | null;
         let checks = 0;
@@ -57,8 +55,7 @@ export class HookParamDiagHandler extends BaseHandler<void, TextDocumentChangeEv
                 }
             }
         }
-        connection.sendDiagnostics({uri:document.uri, diagnostics});
-        this.nextHandler.handle(null, request);
+        return [...prevOutput, ...diagnostics]
     }
 }
 
@@ -87,7 +84,7 @@ function generateCodeAction(param:CodeActionParams): CodeAction {
         change.edit,
         CodeActionKind.QuickFix
     )
-    codeAction.isPreferred = true;
+    // codeAction.isPreferred = true;
     return codeAction;
 }
 
