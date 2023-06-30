@@ -52,7 +52,7 @@ export class HookParamDiagHandler extends BaseHandler<void, TextDocumentChangeEv
                         "Hook parameter should be named 'init'",
                         DiagnosticSeverity.Warning,
                     );
-                    diagnostic.data = [paramRange, argsRange];
+                    diagnostic.data = ['hook param diag', paramRange, argsRange];
                     diagnostics.push(diagnostic);
                 }
             }
@@ -77,10 +77,11 @@ export class HookParamFixHandler extends ContinuousOutputHandler<
 function generateCodeAction(param:CodeActionParams): CodeAction {
     if(param.context.diagnostics.length == 0) return null;
     const data = param.context.diagnostics[0].data ?? [];
+    if(data[0] != 'hook param diag') {return null;}
     const change = new WorkspaceChange();
     const a = change.getTextEditChange(param.textDocument.uri);
-    a.replace(data[0], 'init');
     a.replace(data[1], 'init');
+    a.replace(data[2], 'init');
     const codeAction = CodeAction.create(
         "Fix Hook Parameter",
         change.edit,
