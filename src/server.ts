@@ -26,7 +26,7 @@ import { AttrEditHandler, AttrEditExecuteCommandHandler} from "./handler/attribu
 import {ExtractAttrHandler, ExtractExprHandler} from './handler/ExtractAttrHandler'
 import { StateLiftingCodeActionHandler, StateLiftingExecuteCommandHandler } from "./handler/stateLifting";
 import { HookParamDiagHandler, HookParamFixHandler} from "./handler/HookParamDiagHandler";
-import { SimilarComponentDiagHandler} from './handler/SimilarCompDiagHandler'
+import { SimilarComponentDiagHandler,  SimilarComponentCAHandler} from './handler/SimilarCompDiagHandler'
 
 export const connection = createConnection(ProposedFeatures.all);
 
@@ -74,6 +74,7 @@ connection.onCodeAction(
             new ExtractExprHandler(),
             new StateLiftingCodeActionHandler(),
             new HookParamFixHandler(),
+            new SimilarComponentCAHandler(),
         ],
         []
     )
