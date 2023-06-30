@@ -31,6 +31,8 @@ import { SimilarComponentDiagHandler,  SimilarComponentCAHandler} from './handle
 import { SendDiagnosticsHandler } from "./handler/SendDiagnostic";
 import { PropsDrillingDiagnosticHandler } from './handler/propsDrilling'
 
+import { CallToCombineHandler } from './handler/CallToCombineHandler'
+
 export const connection = createConnection(ProposedFeatures.all);
 
 export const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
@@ -77,6 +79,7 @@ connection.onCodeAction(
             new AttrEditHandler(),
             new ExtractAttrHandler(),
             new ExtractExprHandler(),
+            new CallToCombineHandler(),
             new StateLiftingCodeActionHandler(),
             new HookParamFixHandler(),
             new SimilarComponentCAHandler(),
