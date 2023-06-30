@@ -1,4 +1,5 @@
 import * as j from 'jscodeshift'
+import { locToRange } from './locToRange';
 export default function transformer(text) {
     const root = j(text);
 
@@ -119,9 +120,15 @@ export default function transformer(text) {
         parent_element.at(i).replaceWith(new_jsxElement[i])
     }
 
-    return root.toSource();
+    const range = [
+        ...d_app.map(path => locToRange(path.node.loc)),
+        ...d_parent.map(path => locToRange(path.node.loc)),
+        ...d_child.map(path => locToRange(path.node.loc))
+    ]
+    return { newText: root.toSource(), newRange: range };
 }
 
 // const res: boolean | string = transformer(text)
-// if (typeof res === "boolean") ...
-// else res is newText, 替换全文
+// if (typeof res === "boolean" && !res) 没有调用到组合的情境
+// else res.newText, 替换全文
+// res.newRange.forEach(range=>...) 
