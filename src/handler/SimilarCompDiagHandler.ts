@@ -22,16 +22,14 @@ import { connection, documents } from '../server'
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { checkIfDiag, transformer } from "../helper/extractSmilarComponent";
 import { locToRange } from "../helper/locToRange";
+import * as j from "jscodeshift"
 
-export class SimilarComponentDiagHandler extends BaseHandler<void, TextDocumentChangeEvent<TextDocument>> {
-    handle(prevOutput: void, request: TextDocumentChangeEvent<TextDocument>): void {
+export class SimilarComponentDiagHandler extends ContinuousOutputHandler<Diagnostic[], TextDocumentChangeEvent<TextDocument>> {
+    concreteHandle(prevOutput: Diagnostic[], request: TextDocumentChangeEvent<TextDocument>): Diagnostic[] {
         const document = request.document;
         const res = checkIfDiag(document.getText());
         if(!res.diag) {
-            if(this.nextHandler) {
-                this.nextHandler.handle(null, request);
-            }
-            return;
+            return prevOutput;
         }
         const diagnostics:Diagnostic[] = []
         for(const key in res.cache.range) {
@@ -42,15 +40,10 @@ export class SimilarComponentDiagHandler extends BaseHandler<void, TextDocumentC
                 DiagnosticSeverity.Warning
             );
             const tmp = key.split('.');
-            const elements = res.cache.result[tmp[0]];
-            const elementIndex = tmp[1]
-            diagnostic.data = ['extract similar component', res.cache.root, elements, elementIndex];
+            diagnostic.data = ['extract similar component', document.getText(), tmp];
             diagnostics.push(diagnostic);
         }
-        connection.sendDiagnostics({uri:document.uri, diagnostics:diagnostics});
-        if(this.nextHandler){
-            this.nextHandler.handle(null, request);   
-        }
+        return [...prevOutput, ...diagnostics]
     }
 }
 
@@ -59,9 +52,12 @@ export class SimilarComponentCAHandler extends ContinuousOutputHandler<
     CodeActionParams
 > {
     protected concreteHandle(prevOutput: (CodeAction | Command)[], request: CodeActionParams): (CodeAction | Command)[] {
+        connection.window.showInformationMessage("enter")
         const codeAction = generateCodeAction(request);
-        if(!codeAction) return prevOutput;
-        return [...(prevOutput ?? []), codeAction];
+        if (codeAction) {
+            connection.window.showInformationMessage("code action: " + JSON.stringify(codeAction))
+            return [...prevOutput, codeAction];
+        } else return prevOutput;
     }
 }
 
@@ -70,16 +66,20 @@ function generateCodeAction(request:CodeActionParams): CodeAction {
     const data = request.context.diagnostics[0].data ?? [];
     if(data[0] != 'extract similar component') {return null;}
     const uri = request.textDocument.uri;
-    const newText = transformer(data[1], data[2], data[3]);
+    const root = j(data[1]);
+    const res = checkIfDiag(data[1]);
+    const elements = res.cache.result[data[2][0]]
+    const newText = transformer(root, elements, data[2][1]);
     const change = new WorkspaceChange();
     const a = change.getTextEditChange(uri);
-    a.replace(Range.create(
+    a.replace(
+        Range.create(
             Position.create(0, 0),
-            Position.create(Infinity, Infinity)
-        ), 
+            Position.create(500, 200)
+        ),
         newText
     );
-    const codeAction =  CodeAction.create(
+    const codeAction = CodeAction.create(
         "extract similar component",
         change.edit,
         CodeActionKind.QuickFix,

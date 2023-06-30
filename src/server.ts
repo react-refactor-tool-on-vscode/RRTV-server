@@ -3,6 +3,7 @@ import {
     CodeActionParams,
     Command,
     createConnection,
+    Diagnostic,
     ExecuteCommandParams,
     InitializeParams,
     InitializeResult,
@@ -27,6 +28,7 @@ import {ExtractAttrHandler, ExtractExprHandler} from './handler/ExtractAttrHandl
 import { StateLiftingCodeActionHandler, StateLiftingExecuteCommandHandler } from "./handler/stateLifting";
 import { HookParamDiagHandler, HookParamFixHandler} from "./handler/HookParamDiagHandler";
 import { SimilarComponentDiagHandler,  SimilarComponentCAHandler} from './handler/SimilarCompDiagHandler'
+import { SendDiagnosticsHandler } from "./handler/SendDiagnostic";
 
 export const connection = createConnection(ProposedFeatures.all);
 
@@ -56,12 +58,13 @@ connection.onInitialize((params: InitializeParams) => {
 });
 
 documents.onDidChangeContent(
-    createHandler<void, TextDocumentChangeEvent<TextDocument>>(
+    createHandler<Diagnostic[], TextDocumentChangeEvent<TextDocument>>(
         [
             new HookParamDiagHandler(),
             new SimilarComponentDiagHandler(),
+            new SendDiagnosticsHandler(),
         ],
-        null
+        []
     )
 )
 

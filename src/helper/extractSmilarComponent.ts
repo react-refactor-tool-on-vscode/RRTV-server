@@ -200,7 +200,7 @@ const modifier = (j, divElements, elementIndex) => {
 } */
 
 export function transformer(root, elements, elementIndex) {
-    modifier(j, elements, elementIndex)
+    modifier(j, j(elements), elementIndex)
     return root.toSource();
 }
 
@@ -278,5 +278,3 @@ for (let key in res.cache.range) {
 
 */
 
-const res = checkIfDiag(text)
-console.log(res)
