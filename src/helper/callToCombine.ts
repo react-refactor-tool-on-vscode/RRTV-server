@@ -1,6 +1,6 @@
 import * as j from 'jscodeshift'
 import { locToRange } from './locToRange';
-export default function transformer(text) {
+export default function transformer(text, index) {
     const root = j(text);
 
     /// 找到函数声明
@@ -9,8 +9,8 @@ export default function transformer(text) {
     const declaration = fd.length ? fd : vd
 
     /// 建构名字列表
-    const fd_namelist = new Set()
-    const jsx_namelist = new Set()
+    const fd_namelist = new Set<any>()
+    const jsx_namelist = new Set<any>()
     //.... 添加名字到 set 中
 
     /// 分类所有 jsx 元素 
@@ -19,7 +19,7 @@ export default function transformer(text) {
     je.forEach((path: any) => {
         const name = path.node.openingElement.name.name
         if (!c_je[name]) {
-            c_je[name] = new Array<any>([])
+            c_je[name] = []
             jsx_namelist.add(name)
         }
         c_je[name].push(path)
@@ -30,7 +30,7 @@ export default function transformer(text) {
     declaration.forEach(path => {
         const name = path.node.id.name
         if (!c_d[name]) {
-            c_d[name] = new Array<any>([])
+            c_d[name] = []
             fd_namelist.add(name)
         }
         c_d[name].push(path)
@@ -40,7 +40,9 @@ export default function transformer(text) {
     // 为了保存 chain: {, ,}
     const chainlist = new Set<any>()
     // 开始遍历
+console.log(fd_namelist)
     fd_namelist.forEach((name1: string) => {
+        console.log(c_d[name1])
         j(c_d[name1]).findJSXElements().paths()
             .map((e: any) => {
                 return e.node.openingElement.name.name
@@ -66,7 +68,7 @@ export default function transformer(text) {
     })
     console.log(chainlist, "list")
     if (chainlist.size !== 1)
-        return false
+        return { check: false }
     const [App, Parent, Child] = Array.from(chainlist)[0].split('.')
 
     /// 获得 "App" "Parent" "Child"
@@ -77,10 +79,19 @@ export default function transformer(text) {
     const j_app = c_je[App]
     const j_parent = c_je[Parent]
     const j_child = c_je[Child]
+    /// 判断与构建 range
+    let checkIndex = false
+    const r_app = d_app.map(path => { if (handleIndex(index, path)) checkIndex = true; return locToRange(path.node.loc) })
+    const r_parent = d_parent.map(path => { if (handleIndex(index, path)) checkIndex = true; return locToRange(path.node.loc) })
+    const r_child = d_child.map(path => { if (handleIndex(index, path)) checkIndex = true; return locToRange(path.node.loc) })
+    const range = [
+        r_app,
+        r_parent,
+        r_child
+    ]
 
-    //console.log(d_app, d_parent, d_child)
-    //console.log(j_app, j_parent, j_child)
-
+    if (!checkIndex) 
+        return { check: false }
     /// 更改 Parent declaration [replaceWith]
     const pattern = j(d_parent[0]).find(j.ObjectPattern).paths()[0]
     const new_property = j.property("init", j.identifier("children"), j.identifier("children"))
@@ -120,15 +131,38 @@ export default function transformer(text) {
         parent_element.at(i).replaceWith(new_jsxElement[i])
     }
 
-    const range = [
-        ...d_app.map(path => locToRange(path.node.loc)),
-        ...d_parent.map(path => locToRange(path.node.loc)),
-        ...d_child.map(path => locToRange(path.node.loc))
-    ]
-    return { newText: root.toSource(), newRange: range };
+    return { check: true, newText: root.toSource(), newRange: range };
 }
 
+function handleIndex(index: number, path: any): boolean {
+    // seePosition(path, index)
+    if (path.node.start <= index && index <= path.node.end) {
+        return true
+    }
+    return false
+}
 // const res: boolean | string = transformer(text)
 // if (typeof res === "boolean" && !res) 没有调用到组合的情境
 // else res.newText, 替换全文
 // res.newRange.forEach(range=>...) 
+
+const text = `function CardBoard() {
+	return (<>
+		<Card text="text1" id="3" />
+		<Card text="text2" id="4" />
+		<Card text="text3" id="5" />
+	</>
+	)
+}
+
+function Card({text, id}) {
+	return <CardDrawer text={text} id={id}/>
+}
+
+function CardDrawer({text, id}) {
+	return <div id={id}>{text}</div>
+}`
+
+const index = 3
+
+console.log(transformer(text, index))
