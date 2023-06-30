@@ -24,16 +24,13 @@ import { locToRange } from "../helper/locToRange";
 export class SimilarComponentDiagHandler extends BaseHandler<void, TextDocumentChangeEvent<TextDocument>> {
     handle(prevOutput: void, request: TextDocumentChangeEvent<TextDocument>): void {
         const document = request.document;
-        connection.window.showInformationMessage(document.getText())
         const res = checkIfDiag(document.getText());
-        connection.window.showInformationMessage("res is " + JSON.stringify(res))
         if(!res.diag) {
-            connection.window.showInformationMessage("EXITED");
             this.nextHandler.handle(null, request);
         }
         const diagnostics:Diagnostic[] = []
         for(const key in res.cache.range) {
-            const range = locToRange(res.cache.range[key])
+            const range = res.cache.range[key];
             const diagnostic = Diagnostic.create(
                 range, 
                 "Similar component which can be extracted",
