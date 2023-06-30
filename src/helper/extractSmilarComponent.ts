@@ -155,7 +155,7 @@ const modifier = (j, divElements, elementIndex) => {
         newParams.push(j.property("init", j.identifier(name), j.identifier(name)));
     });
     const newFunctionDeclaration = j.functionDeclaration(
-        j.identifier("newFunction"),
+        j.identifier("NewFunction"),
         [j.objectPattern(newParams)],
         j.blockStatement([j.returnStatement(jsxFragment)])
     );

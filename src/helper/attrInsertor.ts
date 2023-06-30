@@ -11,7 +11,7 @@ export function addTabStop(text: string, option: number): string | undefined {
     } else if (option === 2) {
         let i = 2;
         modifiedCode = text.replace(regex, (match, tagName, attributes, selfClosing) => {
-            const attributeString = ` $\{1:key}:=$\{${i}:"value"}`;
+            const attributeString = ` $\{1:key}=$\{${i}:"value"}`;
             i++;
             const closingSlash = selfClosing ? '/' : '';
             return `<${tagName}${attributes}${attributeString}${closingSlash}>`
@@ -19,7 +19,7 @@ export function addTabStop(text: string, option: number): string | undefined {
     } else if (option === 3) {
         let i = 2;
         modifiedCode = text.replace(regex, (match, tagName, attributes, selfClosing) => {
-            const attributeString = ` $\{${i}:key}:=$\{1:"value"}`;
+            const attributeString = ` $\{${i}:key}=$\{1:"value"}`;
             i++;
             const closingSlash = selfClosing ? '/' : '';
             return `<${tagName}${attributes}${attributeString}${closingSlash}>`
@@ -27,7 +27,7 @@ export function addTabStop(text: string, option: number): string | undefined {
     } else {
         let i = 1;
         modifiedCode = text.replace(regex, (match, tagName, attributes, selfClosing) => {
-            const attributeString = ` $\{${i}:key}:=$\{${i + 1}:"value"}`;
+            const attributeString = ` $\{${i}:key}=$\{${i + 1}:"value"}`;
             i += 2;
             const closingSlash = selfClosing ? '/' : '';
             return `<${tagName}${attributes}${attributeString}${closingSlash}>`

@@ -39,7 +39,7 @@ export class HookParamDiagHandler extends ContinuousOutputHandler<Diagnostic[], 
             const range = Range.create(document.positionAt(match.index),  document.positionAt(match.index))
             if(match[1]) {
                 const [pattern, paramRange] = getFuncPatternParam(text, range);
-                if(match[1] == pattern.trim() && match[1] != 'init') {
+                if(match[1] == pattern.trim() && match[1].substring(0, 4) != 'init') {
                     checks ++;
                     const argsRange =  Range.create(
                         document.positionAt(match.index + match[0].trim().length - match[1].length - 1),  
@@ -47,10 +47,10 @@ export class HookParamDiagHandler extends ContinuousOutputHandler<Diagnostic[], 
                     );
                     const diagnostic = Diagnostic.create(
                         paramRange,
-                        "Hook parameter should be named 'init'",
+                        "Hook parameter should begin with 'init'",
                         DiagnosticSeverity.Warning,
                     );
-                    diagnostic.data = ['hook param diag', paramRange, argsRange];
+                    diagnostic.data = ['hook param diag', paramRange, argsRange, match[1]];
                     diagnostics.push(diagnostic);
                 }
             }
@@ -76,9 +76,10 @@ function generateCodeAction(param:CodeActionParams): CodeAction {
     const data = param.context.diagnostics[0].data ?? [];
     if(data[0] != 'hook param diag') {return null;}
     const change = new WorkspaceChange();
+    const name:string = 'init' + data[3].substring(0, 1).toUpperCase() + data[3].substring(1, 4);
     const a = change.getTextEditChange(param.textDocument.uri);
-    a.replace(data[1], 'init');
-    a.replace(data[2], 'init');
+    a.replace(data[1], name);
+    a.replace(data[2], name);
     const codeAction = CodeAction.create(
         "Fix Hook Parameter",
         change.edit,
