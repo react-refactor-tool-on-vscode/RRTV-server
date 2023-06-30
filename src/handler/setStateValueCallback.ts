@@ -58,7 +58,7 @@ export class SetStateValueCallbackCodeActionHandler extends ContinuousOutputHand
                                             [
                                                 TextEdit.replace(
                                                     locToRange(loc),
-                                                    generate(argument.params[0])
+                                                    generate(argument.body)
                                                         .code
                                                 ),
                                             ]
