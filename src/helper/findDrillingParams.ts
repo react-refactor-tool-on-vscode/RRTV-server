@@ -31,6 +31,14 @@ export function findDrillingParams(ast: t.Node): NodePath<t.Identifier>[] {
                                 _.every(
                                     notParamIdentifierLoc,
                                     (loc) => !IsEqualLoc(loc, path.node.loc)
+                                ) &&
+                                _.every(
+                                    paramsAll,
+                                    (paramPath) =>
+                                        !IsEqualLoc(
+                                            paramPath.node.loc,
+                                            path.node.loc
+                                        )
                                 )
                             ) {
                                 paramsAll.push(path);
@@ -46,16 +54,16 @@ export function findDrillingParams(ast: t.Node): NodePath<t.Identifier>[] {
                         if (t.isJSXElement(path.node)) {
                             isJSXElementComponent.push(
                                 !(
-                                    t.isIdentifier(
+                                    t.isJSXIdentifier(
                                         path.node.openingElement.name
                                     ) &&
                                     (
                                         path.node.openingElement
-                                            .name as t.Identifier
+                                            .name as t.JSXIdentifier
                                     ).name[0] ==
                                         (
                                             path.node.openingElement
-                                                .name as t.Identifier
+                                                .name as t.JSXIdentifier
                                         ).name[0].toLowerCase()
                                 )
                             );
