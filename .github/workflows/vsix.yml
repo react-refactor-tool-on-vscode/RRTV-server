@@ -1,0 +1,69 @@
+name: demo2
+on: 
+  push:
+    branches: 
+      - 'releases/**'
+  workflow_dispatch:
+
+jobs:
+  package:
+    runs-on: windows-latest
+
+    permissions: 
+      contents: read
+      packages: read
+
+    steps:
+    - name: Checkout release branch
+      uses: actions/checkout@v2
+
+    - name: Git clone
+      run: |
+        mkdir .github/test
+        mkdir .github/test/client
+        git clone https://github.com/react-refactor-tool-on-vscode/RRTV-client.git .github/test/client
+        mkdir .github/test/server
+        git clone https://github.com/react-refactor-tool-on-vscode/RRTV-server.git .github/test/server
+        mkdir .github/test/package
+        git clone https://github.com/Crush-0/rrtv-package.git .github/test/package
+
+    - name: Configure version
+      run: |
+        cd .github/test
+        mv ./client/.vscode ./.vscode
+        mv ./package/LICENSE ./LICENSE
+        mv ./package/package.json ./package.json
+        mv ./package/README.md ./README.md
+        mv ./package/update-package-version.js ./update-package-version.js
+        node update-package-version.js
+
+    - name: Package all
+      run: |
+        npm i @vscode/vsce -g
+        vsce package
+
+    - name: Get package version
+      id: get_version
+      run: |
+        echo "::set-output name=version::$(node -p "require('./package.json').version")"
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      with:
+        tag_name: v${{ steps.get_version.outputs.version }}
+        release_name: Release v${{ steps.get_version.outputs.version }}
+        draft: true
+        prerelease: false
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./react-refactor-tool-on-vscode-0.0.1.vsix
+        asset_name: react-refactor-tool-on-vscode-0.0.1.vsix
+        asset_content_type: application/octet-stream

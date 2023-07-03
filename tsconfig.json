@@ -7,12 +7,14 @@
 		"rootDir": "src",
 		"sourceMap": true,
         "moduleResolution": "Node",
+		"skipLibCheck": true, // Workaround for handling wrong compilation of TypeScript 
 	},
 	"include": [
 		"src"
 	],
 	"exclude": [
 		"node_modules",
-		".vscode-test"
+		".vscode-test",
+		"src/test"
 	],
 }
